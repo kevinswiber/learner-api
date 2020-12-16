@@ -29,12 +29,10 @@ pipeline {
                 // change this to build a docker image with dependencies.
                 // then just run a container based on the image
                 sh '''docker run \\
-                    -v $WORKSPACE:/app \\
                     --rm \\
                     -p 3000:3000 \\
                     --name learner-api-server \\
                     --network learner-api \\
-                    -w /app \\
                     --detach \\
                     learner-api'''
 
