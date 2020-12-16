@@ -9,19 +9,6 @@ pipeline {
     }
     
     stages {
-        stage('Clone repository') {
-            steps {
-                checkout(scm: [
-                    $class: 'GitSCM',
-                    branches: [[name: '*/main']],
-                    doGenerateSubmoduleConfigurations: false,
-                    extensions: [],
-                    submoduleCfg: [],
-                    userRemoteConfigs: [[url: 'https://github.com/kevinswiber/learner-api.git']]
-                ], poll: true)
-            }
-        }
-        
         stage('Build') {
             steps {
                 nodejs('default-lts') {
