@@ -18,12 +18,34 @@ pipeline {
                     https://api.getpostman.com/collections/${collection_id} \\
                     > collection.json'''
                     
-                sh 'docker-compose up -f docker-compose.test.yml --detach'
+                sh 'docker network create learner-api'
+
+                sh '''docker run \\
+                    -v $WORKSPACE:/app \\
+                    --rm \\
+                    -p 3000:3000 \\
+                    --name learner-api-server \\
+                    --network learner-api \\
+                    -w /app
+                    --detach
+                    node:lts-buster-slim \\
+                    npm start'''
+
+                sh '''docker run \\
+                    -v $WORKSPACE:/etc/newman \\
+                    --rm \\
+                    --network learner-api \\
+                    postman/newman \\
+                    run collection.json \\
+                    --env-var url=http://learner-api-server:3000 \\
+                    --reporters cli,junit \\
+                    --reporter-junit-export newman/report.xml'''
             }
 
             post {
                 always {
-                    sh 'docker-compose down -f docker-compose.test.yml'
+                    sh 'docker kill learner-api-server'
+                    sh 'docker network rm learner-api'
                 }
             }
         }
