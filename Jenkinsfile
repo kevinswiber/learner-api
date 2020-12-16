@@ -18,7 +18,7 @@ pipeline {
                     https://api.getpostman.com/collections/${collection_id} \\
                     > collection.json'''
                     
-                sh 'docker network create learner-api'
+                sh 'docker network create learner-api || true'
 
                 sh '''docker run \\
                     -v $WORKSPACE:/app \\
@@ -44,8 +44,8 @@ pipeline {
 
             post {
                 always {
-                    sh 'docker kill learner-api-server'
-                    sh 'docker network rm learner-api'
+                    sh 'docker kill learner-api-server || true'
+                    sh 'docker network rm learner-api || true'
                 }
             }
         }
