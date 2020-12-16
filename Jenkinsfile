@@ -7,6 +7,12 @@ pipeline {
     }
     
     stages {
+        stage('Build') {
+            steps {
+                sh 'docker build -t learner-api .'
+            }
+        }
+
         stage('Test') {
             options {
                 timeout(time: 10, unit: 'MINUTES')
@@ -20,6 +26,8 @@ pipeline {
                     
                 sh 'docker network create learner-api || true'
 
+                // change this to build a docker image with dependencies.
+                // then just run a container based on the image
                 sh '''docker run \\
                     -v $WORKSPACE:/app \\
                     --rm \\
@@ -28,8 +36,7 @@ pipeline {
                     --network learner-api \\
                     -w /app \\
                     --detach \\
-                    node:lts-buster-slim \\
-                    /bin/bash -c "npm install && npm start"'''
+                    learner-api'''
 
                 sh '''docker run \\
                     -v $WORKSPACE:/etc/newman \\
