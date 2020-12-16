@@ -29,7 +29,7 @@ pipeline {
                     -w /app \\
                     --detach \\
                     node:lts-buster-slim \\
-                    npm install && npm start'''
+                    /bin/bash -c "npm install && npm start"'''
 
                 sh '''docker run \\
                     -v $WORKSPACE:/etc/newman \\
