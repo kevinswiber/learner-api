@@ -31,6 +31,10 @@ pipeline {
         }
         
         stage('Test') {
+            options {
+                timeout(time: 10, unit: 'MINUTES')
+            }
+
             steps {
                 nodejs('default-lts') {
                     sh 'npm start &'
