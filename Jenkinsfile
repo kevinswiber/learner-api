@@ -26,8 +26,8 @@ pipeline {
                     -p 3000:3000 \\
                     --name learner-api-server \\
                     --network learner-api \\
-                    -w /app
-                    --detach
+                    -w /app \\
+                    --detach \\
                     node:lts-buster-slim \\
                     npm start'''
 
