@@ -7,37 +7,24 @@ pipeline {
     }
     
     stages {
-        stage('Build') {
-            steps {
-                nodejs('default-lts') {
-                    sh 'npm install'
-                }
-            }
-        }
-        
         stage('Test') {
             options {
                 timeout(time: 10, unit: 'MINUTES')
             }
 
             steps {
-                nodejs('default-lts') {
-                    sh 'npm start &'
-                }
-                
                 sh '''curl \\
                     -H "X-API-Key: ${postman_api_key}" \\
                     https://api.getpostman.com/collections/${collection_id} \\
                     > collection.json'''
                     
-                sh '''docker run \\
-                    --network host \\
-                    -v $WORKSPACE:/etc/newman \\
-                    postman/newman run \\
-                    collection.json \\
-                    --env-var "url=http://172.17.0.1:3000"
-                    --reporters cli,junit \\
-                    --reporter-junit-export newman/report.xml'''
+                sh 'docker-compose up -f docker-compose.test.yml --detach'
+            }
+
+            post {
+                always {
+                    sh 'docker-compose down -f docker-compose.test.yml'
+                }
             }
         }
     }

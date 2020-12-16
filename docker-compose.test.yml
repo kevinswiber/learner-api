@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  api:
+    image: node:lts-buster-slim
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    working_dir: '/app'
+    command: ['npm', 'start']
+  test:
+    depends_on:
+      - api
+    image: postman/newman
+    command: ['run', 'collection.json', '--env-var', 'url=http://api:3000', '--reporters', 'cli,junit', '--reporter-junit-export', 'newman/report.xml']
+    volumes:
+      - .:/etc/newman
