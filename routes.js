@@ -30,6 +30,7 @@ var routes = function(app) {
     responseData["message"] =
       "You made a POST request with the following data!";
     responseData["data"] = req.body;
+    res.statusCode = 201;
     return res.send(responseData);
   });
 
@@ -46,10 +47,7 @@ var routes = function(app) {
 
   //delete request with query parameter
   app.delete("/info", function(req, res) {
-    let responseData = new Object();
-    responseData["message"] =
-      "You made a DELETE request to delete id=" + req.query.id + "!";
-    return res.send(responseData);
+    return res.sendStatus(204);
   });
 };
 
