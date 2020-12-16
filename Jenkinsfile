@@ -25,9 +25,7 @@ pipeline {
                     > collection.json'''
                     
                 sh 'docker network create learner-api || true'
-
-                // change this to build a docker image with dependencies.
-                // then just run a container based on the image
+                
                 sh '''docker run \\
                     --rm \\
                     -p 3000:3000 \\
