@@ -1,8 +1,6 @@
 pipeline {
     agent any
 
-    triggers { pollSCM('*/5 * * * *') }
-
     environment {
         postman_api_key = credentials('postman-api-key')
         collection_id = '10825352-5fcf2dac-164c-4891-b738-126babc795ad'
