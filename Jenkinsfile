@@ -18,31 +18,45 @@ pipeline {
                 timeout(time: 10, unit: 'MINUTES')
             }
 
-            steps {
-                sh '''curl \\
-                    -H "X-API-Key: ${postman_api_key}" \\
-                    https://api.getpostman.com/collections/${collection_id} \\
-                    > collection.json'''
-                    
-                sh 'docker network create learner-api || true'
-                
-                sh '''docker run \\
-                    --rm \\
-                    -p 3000:3000 \\
-                    --name learner-api-server \\
-                    --network learner-api \\
-                    --detach \\
-                    learner-api'''
+            stages {
+                stage('Fetch Postman collection') {
+                    steps {
+                        sh '''curl \\
+                            -H "X-API-Key: ${postman_api_key}" \\
+                            https://api.getpostman.com/collections/${collection_id} \\
+                            > collection.json'''
+                    }
+                }
+                stage('Create Docker network') {
+                    steps {
+                        sh 'docker network create learner-api || true'
+                    }
+                }
+                stage('Run API server') {
+                    steps {
+                        sh '''docker run \\
+                            --rm \\
+                            -p 3000:3000 \\
+                            --name learner-api-server \\
+                            --network learner-api \\
+                            --detach \\
+                            learner-api'''          
+                    }
+                }
+                stage('Run Postman tests') {
+                    steps {
 
-                sh '''docker run \\
-                    -v $WORKSPACE:/etc/newman \\
-                    --rm \\
-                    --network learner-api \\
-                    postman/newman \\
-                    run collection.json \\
-                    --env-var url=http://learner-api-server:3000 \\
-                    --reporters cli,junit \\
-                    --reporter-junit-export newman/report.xml'''
+                        sh '''docker run \\
+                            -v $WORKSPACE:/etc/newman \\
+                            --rm \\
+                            --network learner-api \\
+                            postman/newman \\
+                            run collection.json \\
+                            --env-var url=http://learner-api-server:3000 \\
+                            --reporters cli,junit \\
+                            --reporter-junit-export newman/report.xml'''
+                    }
+                }
             }
 
             post {
