@@ -18,40 +18,42 @@ pipeline {
         }
 
         stage('Test') {
-            stage('Start API server') {
-                agent {
-                    docker {
-                        image 'node:lts-buster-slim'
-                        args '-v ${WORKSPACE}:/usr/src/app --network learner-api-${BUILD_ID}'
-                    }
-                }
-
-                steps {
-                    sh 'npm install'
-                    //sh 'npm test'
-                    sh 'npm start'
-                }
-            }
-
-            stage('Test API') {
-                options {
-                    timeout(time: 10, unit: 'MINUTES')
-                }
-
-                steps {
-                    agent docker {
-                        image 'postman/newman'
-                        args '-v $WORKSPACE:/etc/newman --network learner-api-${BUILD_ID} --entrypoint=""'
+            stages {
+                stage('Start API server') {
+                    agent {
+                        docker {
+                            image 'node:lts-buster-slim'
+                            args '-v ${WORKSPACE}:/usr/src/app --network learner-api-${BUILD_ID}'
+                        }
                     }
 
                     steps {
-                        sh '''newman run \\
-                            --env-var url=http://learner-api-server:3000 \\
-                            --reporters cli,junit \\
-                            --reporter-junit-export newman/report.xml'''
+                        sh 'npm install'
+                        //sh 'npm test'
+                        sh 'npm start'
                     }
                 }
 
+                stage('Test API') {
+                    options {
+                        timeout(time: 10, unit: 'MINUTES')
+                    }
+
+                    steps {
+                        agent docker {
+                            image 'postman/newman'
+                            args '-v $WORKSPACE:/etc/newman --network learner-api-${BUILD_ID} --entrypoint=""'
+                        }
+
+                        steps {
+                            sh '''newman run \\
+                                --env-var url=http://learner-api-server:3000 \\
+                                --reporters cli,junit \\
+                                --reporter-junit-export newman/report.xml'''
+                        }
+                    }
+
+                }
             }
 
             post {
