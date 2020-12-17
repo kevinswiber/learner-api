@@ -27,6 +27,8 @@ pipeline {
                             --name learner-api-server-${BUILD_ID} \\
                             --network learner-api-${BUILD_ID} \\
                             --detach \\
+                            -v ${WORKSPACE}:/usr/src/app \\
+                            --workdir /usr/src/app \\
                             node:lts-buster-slim \\
                             /bin/bash -c "npm install && npm start"'''          
                     }
@@ -38,15 +40,25 @@ pipeline {
                     }
 
                     steps {
-                        agent docker {
+                        /*agent docker {
                             image 'postman/newman'
                             args '-v ${WORKSPACE}:/etc/newman --network learner-api-${BUILD_ID} --entrypoint=""'
-                        }
+                        }*/
 
                         steps {
                             sh '''while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' learner-api-server-${BUILD_ID}:3000)" != "200" ]]; do sleep 5; done'''
-                            sh '''newman run \\
+                            /*sh '''newman run \\
                                 --env-var url=http://learner-api-server-${BUILD_ID}:3000 \\
+                                --reporters cli,junit \\
+                                --reporter-junit-export newman/report.xml'''*/
+                            
+                            sh '''docker run \\
+                                -v ${WORKSPACE}:/etc/newman \\
+                                --rm \\
+                                --network learner-api \\
+                                postman/newman \\
+                                run collection.json \\
+                                --env-var url=http://learner-api-server:3000 \\
                                 --reporters cli,junit \\
                                 --reporter-junit-export newman/report.xml'''
                         }
