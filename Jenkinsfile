@@ -18,7 +18,7 @@ pipeline {
         }
 
         stage('Test') {
-            stages {
+            parallel {
                 stage('Start API server') {
                     agent {
                         docker {
@@ -46,6 +46,7 @@ pipeline {
                         }
 
                         steps {
+                            sh 'bash -c \'while [[ "$(curl -s -o /dev/null -w \'\'%{http_code}\'\' localhost:3000)" != "200" ]]; do sleep 5; done\''
                             sh '''newman run \\
                                 --env-var url=http://learner-api-server:3000 \\
                                 --reporters cli,junit \\
