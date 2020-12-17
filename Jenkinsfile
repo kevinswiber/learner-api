@@ -30,7 +30,7 @@ pipeline {
                     steps {
                         sh 'npm install'
                         //sh 'npm test'
-                        sh 'npm start'
+                        sh 'npm start &'
                     }
                 }
 
