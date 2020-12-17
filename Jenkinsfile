@@ -40,7 +40,7 @@ pipeline {
                     steps {
                         agent docker {
                             image 'postman/newman'
-                            args '-v $WORKSPACE:/etc/newman --network learner-api-${BUILD_ID} --entrypoint=""'
+                            args '-v ${WORKSPACE}:/etc/newman --network learner-api-${BUILD_ID} --entrypoint=""'
                         }
 
                         steps {
