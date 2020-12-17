@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Setup test environment') {
             steps {
-                sh 'docker network create learner-api-${env.BUILD_ID} || true'
+                sh 'docker network create learner-api-${BUILD_ID} || true'
                 sh '''curl \\
                     -H "X-API-Key: ${postman_api_key}" \\
                     https://api.getpostman.com/collections/${collection_id} \\
@@ -23,7 +23,7 @@ pipeline {
                     agent {
                         docker {
                             image 'node:lts-buster-slim'
-                            args '-v ${env.WORKSPACE}:/usr/src/app --network learner-api-$(env.BUILD_ID}'
+                            args '-v ${WORKSPACE}:/usr/src/app --network learner-api-$(BUILD_ID}'
                         }
                     }
 
@@ -42,7 +42,7 @@ pipeline {
                     steps {
                         agent docker {
                             image 'postman/newman'
-                            args '-v $WORKSPACE:/etc/newman --network learner-api-${env.BUILD_ID} --entrypoint=""'
+                            args '-v $WORKSPACE:/etc/newman --network learner-api-${BUILD_ID} --entrypoint=""'
                         }
 
                         steps {
@@ -58,7 +58,7 @@ pipeline {
 
             post {
                 always {
-                    sh 'docker network rm learner-api-${env.BUILD_ID} || true'
+                    sh 'docker network rm learner-api-${BUILD_ID} || true'
                 }
             }
         }
