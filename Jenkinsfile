@@ -18,7 +18,7 @@ pipeline {
         }
 
         stage('Test') {
-            parallel {
+            stages {
                 stage('Run API server') {
                     steps {
                         sh '''docker run \\
@@ -45,7 +45,7 @@ pipeline {
                             args '-v ${WORKSPACE}:/etc/newman --network learner-api-${BUILD_ID} --entrypoint=""'
                         }*/
 
-                        sh '''/bin/bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' learner-api-server-${BUILD_ID}:3000)" != "200" ]]; do sleep 5; done'; '''
+                        //sh '''/bin/bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' learner-api-server-${BUILD_ID}:3000)" != "200" ]]; do sleep 5; done'; '''
                         /*sh '''newman run \\
                             --env-var url=http://learner-api-server-${BUILD_ID}:3000 \\
                             --reporters cli,junit \\
