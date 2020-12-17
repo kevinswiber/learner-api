@@ -23,7 +23,7 @@ pipeline {
                     agent {
                         docker {
                             image 'node:lts-buster-slim'
-                            args '-v ${WORKSPACE}:/usr/src/app --network learner-api-${BUILD_ID}'
+                            args '-v ${WORKSPACE}:/usr/src/app --network learner-api-${BUILD_ID} --detach'
                         }
                     }
 
