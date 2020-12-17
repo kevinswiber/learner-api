@@ -68,6 +68,7 @@ pipeline {
 
             post {
                 always {
+                    sh 'docker kill learner-api-server-${BUILD_ID} || true'
                     sh 'docker network rm learner-api-${BUILD_ID} || true'
                 }
             }
