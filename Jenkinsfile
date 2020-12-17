@@ -7,66 +7,63 @@ pipeline {
     }
     
     stages {
-        stage('Build') {
+        stage('Setup test environment') {
             steps {
-                sh 'docker build -t learner-api .'
+                sh 'docker network create learner-api-${env.BUILD_ID} || true'
+                sh '''curl \\
+                    -H "X-API-Key: ${postman_api_key}" \\
+                    https://api.getpostman.com/collections/${collection_id} \\
+                    > collection.json'''
             }
         }
 
         stage('Test') {
-            options {
-                timeout(time: 10, unit: 'MINUTES')
-            }
+            parallel {
+                stage('Start API server') {
+                    agent {
+                        docker {
+                            image 'node:lts-buster-slim'
+                            args '-v ${env.WORKSPACE}:/usr/src/app --network learner-api-$(env.BUILD_ID}'
+                        }
+                    }
 
-            stages {
-                stage('Fetch Postman collection') {
                     steps {
-                        sh '''curl \\
-                            -H "X-API-Key: ${postman_api_key}" \\
-                            https://api.getpostman.com/collections/${collection_id} \\
-                            > collection.json'''
+                        sh 'npm install'
+                        //sh 'npm test'
+                        sh 'npm start'
                     }
                 }
-                stage('Create Docker network') {
-                    steps {
-                        sh 'docker network create learner-api || true'
-                    }
-                }
-                stage('Run API server') {
-                    steps {
-                        sh '''docker run \\
-                            --rm \\
-                            -p 3000:3000 \\
-                            --name learner-api-server \\
-                            --network learner-api \\
-                            --detach \\
-                            learner-api'''          
-                    }
-                }
-                stage('Run Postman tests') {
-                    steps {
 
-                        sh '''docker run \\
-                            -v $WORKSPACE:/etc/newman \\
-                            --rm \\
-                            --network learner-api \\
-                            postman/newman \\
-                            run collection.json \\
-                            --env-var url=http://learner-api-server:3000 \\
-                            --reporters cli,junit \\
-                            --reporter-junit-export newman/report.xml'''
+                stage('Test API') {
+                    options {
+                        timeout(time: 10, unit: 'MINUTES')
                     }
+
+                    steps {
+                        agent docker {
+                            image 'postman/newman'
+                            args '-v $WORKSPACE:/etc/newman --network learner-api-${env.BUILD_ID} --entrypoint=""'
+                        }
+
+                        steps {
+                            sh '''newman run \\
+                                --env-var url=http://learner-api-server:3000 \\
+                                --reporters cli,junit \\
+                                --reporter-junit-export newman/report.xml'''
+                        }
+                    }
+
                 }
             }
 
             post {
                 always {
-                    sh 'docker kill learner-api-server || true'
-                    sh 'docker network rm learner-api || true'
+                    sh 'docker network rm learner-api-${env.BUILD_ID} || true'
                 }
             }
         }
     }
+
     
     post {
         always {
