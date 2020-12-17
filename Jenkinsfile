@@ -19,18 +19,16 @@ pipeline {
 
         stage('Test') {
             parallel {
-                stage('Start API server') {
-                    agent {
-                        docker {
-                            image 'node:lts-buster-slim'
-                            args '-v ${WORKSPACE}:/usr/src/app --network learner-api-${BUILD_ID} --detach'
-                        }
-                    }
-
+                stage('Run API server') {
                     steps {
-                        sh 'npm install'
-                        //sh 'npm test'
-                        sh 'npm start &'
+                        sh '''docker run \\
+                            --rm \\
+                            -p 3000:3000 \\
+                            --name learner-api-server-${BUILD_ID} \\
+                            --network learner-api-${BUILD_ID} \\
+                            --detach \\
+                            node:lts-buster-slim \\
+                            /bin/bash -c "npm install && npm start"'''          
                     }
                 }
 
@@ -46,9 +44,9 @@ pipeline {
                         }
 
                         steps {
-                            sh 'bash -c \'while [[ "$(curl -s -o /dev/null -w \'\'%{http_code}\'\' localhost:3000)" != "200" ]]; do sleep 5; done\''
+                            sh 'bash -c \'while [[ "$(curl -s -o /dev/null -w \'\'%{http_code}\'\' learner-api-server-${BUILD_ID}:3000)" != "200" ]]; do sleep 5; done\''
                             sh '''newman run \\
-                                --env-var url=http://learner-api-server:3000 \\
+                                --env-var url=http://learner-api-server-${BUILD_ID}:3000 \\
                                 --reporters cli,junit \\
                                 --reporter-junit-export newman/report.xml'''
                         }
