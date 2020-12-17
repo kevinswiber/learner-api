@@ -54,7 +54,7 @@ pipeline {
                         sh '''docker run \\
                             -v ${WORKSPACE}:/etc/newman \\
                             --rm \\
-                            --network learner-api \\
+                            --network learner-api-${BUILD_ID} \\
                             -v ${WORKSPACE}:/etc/newman \\
                             postman/newman \\
                             run collection.json \\
