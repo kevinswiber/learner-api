@@ -16,56 +16,51 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            stages {
-                stage('Run API server') {
-                    steps {
-                        sh '''docker run \\
-                            --rm \\
-                            -p 3000:3000 \\
-                            --name learner-api-server-${BUILD_ID} \\
-                            --network learner-api-${BUILD_ID} \\
-                            --detach \\
-                            -v ${WORKSPACE}:/usr/src/app \\
-                            --workdir /usr/src/app \\
-                            node:lts-buster-slim \\
-                            /bin/bash -c "npm install && npm start"'''          
-                    }
+        stage('Run API server') {
+            steps {
+                sh '''docker run \\
+                    --rm \\
+                    -p 3000:3000 \\
+                    --name learner-api-server-${BUILD_ID} \\
+                    --network learner-api-${BUILD_ID} \\
+                    --detach \\
+                    -v ${WORKSPACE}:/usr/src/app \\
+                    --workdir /usr/src/app \\
+                    node:lts-buster-slim \\
+                    /bin/bash -c "npm install && npm start"'''          
+            }
+        }
+
+        stage('Test API') {
+            options {
+                timeout(time: 10, unit: 'MINUTES')
+            }
+
+            agent {
+                docker {
+                    image 'postman/newman'
+                    args '-v ${WORKSPACE}:/etc/newman --network learner-api-${BUILD_ID} --entrypoint=""'
                 }
+            }
 
-                stage('Test API') {
-                    options {
-                        timeout(time: 10, unit: 'MINUTES')
-                    }
-
-                    agent {
-                        docker {
-                            image 'postman/newman'
-                            args '-v ${WORKSPACE}:/etc/newman --network learner-api-${BUILD_ID} --entrypoint=""'
-                        }
-                    }
-
-                    steps {
-                        //sh '''/bin/sh -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' learner-api-server-${BUILD_ID}:3000)" != "200" ]]; do sleep 5; done'; '''
-                        sh '''newman run \\
-                            collection.json \\
-                            --env-var url=http://learner-api-server-${BUILD_ID}:3000 \\
-                            --reporters cli,junit \\
-                            --reporter-junit-export newman/report.xml'''
-                        
-                        /*sh '''docker run \\
-                            -v ${WORKSPACE}:/etc/newman \\
-                            --rm \\
-                            --network learner-api-${BUILD_ID} \\
-                            -v ${WORKSPACE}:/etc/newman \\
-                            postman/newman \\
-                            run collection.json \\
-                            --env-var url=http://learner-api-server:3000 \\
-                            --reporters cli,junit \\
-                            --reporter-junit-export newman/report.xml'''*/
-                    }
-
-                }
+            steps {
+                //sh '''/bin/sh -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' learner-api-server-${BUILD_ID}:3000)" != "200" ]]; do sleep 5; done'; '''
+                sh '''newman run \\
+                    collection.json \\
+                    --env-var url=http://learner-api-server-${BUILD_ID}:3000 \\
+                    --reporters cli,junit \\
+                    --reporter-junit-export newman/report.xml'''
+                
+                /*sh '''docker run \\
+                    -v ${WORKSPACE}:/etc/newman \\
+                    --rm \\
+                    --network learner-api-${BUILD_ID} \\
+                    -v ${WORKSPACE}:/etc/newman \\
+                    postman/newman \\
+                    run collection.json \\
+                    --env-var url=http://learner-api-server:3000 \\
+                    --reporters cli,junit \\
+                    --reporter-junit-export newman/report.xml'''*/
             }
 
             post {
