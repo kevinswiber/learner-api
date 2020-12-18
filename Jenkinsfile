@@ -27,7 +27,7 @@ pipeline {
 
             steps {
                 sh 'npm install'
-                sh 'npm start'
+                sh 'npm start &'
                 /*sh '''docker run \\
                     --rm \\
                     -p 3000:3000 \\
