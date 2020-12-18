@@ -49,6 +49,7 @@ pipeline {
                     steps {
                         //sh '''/bin/sh -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' learner-api-server-${BUILD_ID}:3000)" != "200" ]]; do sleep 5; done'; '''
                         sh '''newman run \\
+                            collection.json \\
                             --env-var url=http://learner-api-server-${BUILD_ID}:3000 \\
                             --reporters cli,junit \\
                             --reporter-junit-export newman/report.xml'''
