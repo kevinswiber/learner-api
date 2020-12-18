@@ -18,8 +18,16 @@ pipeline {
         }
 
         stage('Run API server') {
+            agent {
+                docker {
+                    image 'node:lts-buster-slim'
+                    args '-p 3000:3000 --name learner-api-server-${BUILD_ID} --network learner-api-${BUILD_ID} -v ${WORKSPACE}/usr/src/app --workdir /usr/src/app'
+                }
+            }
             steps {
-                sh '''docker run \\
+                sh 'npm install'
+                sh 'npm start'
+                /*sh '''docker run \\
                     --rm \\
                     -p 3000:3000 \\
                     --name learner-api-server-${BUILD_ID} \\
@@ -28,7 +36,7 @@ pipeline {
                     -v ${WORKSPACE}:/usr/src/app \\
                     --workdir /usr/src/app \\
                     node:lts-buster-slim \\
-                    /bin/bash -c "npm install && npm start"'''
+                    /bin/bash -c "npm install && npm start"'''*/
             }
         }
 
@@ -57,6 +65,9 @@ pipeline {
             post {
                 always {
                     junit 'newman/report.xml'
+                    node(null) {
+                        sh(script: 'docker kill learner-api-server-${BUILD_ID}')
+                    }
                 }
             }
         }
@@ -65,7 +76,7 @@ pipeline {
     
     post {
         always {
-            sh 'docker kill learner-api-server-${BUILD_ID} || true'
+            //sh 'docker kill learner-api-server-${BUILD_ID} || true'
             sh 'docker network rm learner-api-${BUILD_ID} || true'
         }
     }
