@@ -13,6 +13,7 @@ pipeline {
                 sh '''curl \\
                     -H "X-API-Key: ${postman_api_key}" \\
                     https://api.getpostman.com/collections/${collection_id} > ${WORKSPACE}/collection.json'''
+                stash name: 'collection', includes: 'collection.json'
             }
         }
 
@@ -44,6 +45,7 @@ pipeline {
             }
 
             steps {
+                unstash 'collection'
                 //sh '''/bin/sh -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' learner-api-server-${BUILD_ID}:3000)" != "200" ]]; do sleep 5; done'; '''
                 sh '''newman run \\
                     collection.json \\
