@@ -12,8 +12,7 @@ pipeline {
                 sh 'docker network create learner-api-${BUILD_ID} || true'
                 sh '''curl \\
                     -H "X-API-Key: ${postman_api_key}" \\
-                    https://api.getpostman.com/collections/${collection_id} \\
-                    > ${WORKSPACE}/collection.json'''
+                    https://api.getpostman.com/collections/${collection_id} > ${WORKSPACE}/collection.json'''
             }
         }
 
