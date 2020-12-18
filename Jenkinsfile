@@ -34,17 +34,29 @@ pipeline {
                     }
                 }
 
+                stage('Is Docker working?') {
+                    agent {
+                        docker { image "busybox" }
+                    }
+
+                    steps {
+                        sh 'echo "hi"'
+                    }
+                }
+
                 stage('Test API') {
                     options {
                         timeout(time: 10, unit: 'MINUTES')
                     }
 
-                    steps {
-                        agent docker {
+                    agent {
+                        docker {
                             image 'postman/newman'
                             args '-v ${WORKSPACE}:/etc/newman --network learner-api-${BUILD_ID} --entrypoint=""'
                         }
+                    }
 
+                    steps {
                         sh '''/bin/bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' learner-api-server-${BUILD_ID}:3000)" != "200" ]]; do sleep 5; done'; '''
                         sh '''newman run \\
                             --env-var url=http://learner-api-server-${BUILD_ID}:3000 \\
