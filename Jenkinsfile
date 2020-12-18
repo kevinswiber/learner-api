@@ -52,24 +52,13 @@ pipeline {
                     --env-var url=http://learner-api-server-${BUILD_ID}:3000 \\
                     --reporters cli,junit \\
                     --reporter-junit-export newman/report.xml'''
-                
-                /*sh '''docker run \\
-                    -v ${WORKSPACE}:/etc/newman \\
-                    --rm \\
-                    --network learner-api-${BUILD_ID} \\
-                    -v ${WORKSPACE}:/etc/newman \\
-                    postman/newman \\
-                    run collection.json \\
-                    --env-var url=http://learner-api-server:3000 \\
-                    --reporters cli,junit \\
-                    --reporter-junit-export newman/report.xml'''*/
             }
+        }
 
-            post {
-                always {
-                    sh 'docker kill learner-api-server-${BUILD_ID} || true'
-                    sh 'docker network rm learner-api-${BUILD_ID} || true'
-                }
+        stage('Cleanup') {
+            steps {
+                sh 'docker kill learner-api-server-${BUILD_ID} || true'
+                sh 'docker network rm learner-api-${BUILD_ID} || true'
             }
         }
     }
