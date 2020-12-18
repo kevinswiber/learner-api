@@ -13,7 +13,7 @@ pipeline {
                 sh '''curl \\
                     -H "X-API-Key: ${postman_api_key}" \\
                     https://api.getpostman.com/collections/${collection_id} \\
-                    > collection.json'''
+                    > ${WORKSPACE}/collection.json'''
             }
         }
 
