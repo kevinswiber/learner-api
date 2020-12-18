@@ -52,6 +52,7 @@ pipeline {
                     --env-var url=http://learner-api-server-${BUILD_ID}:3000 \\
                     --reporters cli,junit \\
                     --reporter-junit-export newman/report.xml'''
+                stash name: 'newman-report', includes: 'newman/report.xml'
             }
         }
     }
@@ -61,6 +62,7 @@ pipeline {
         always {
             sh 'docker kill learner-api-server-${BUILD_ID} || true'
             sh 'docker network rm learner-api-${BUILD_ID} || true'
+            unstash 'newman-report'
             junit 'newman/report.xml'
         }
     }
