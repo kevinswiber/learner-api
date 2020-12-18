@@ -46,7 +46,7 @@ pipeline {
 
             steps {
                 unstash 'collection'
-                sh '/bin/sh -c "while ! wget http://learner-api-server-${BUILD_ID}:3000; do sleep 5; done"'
+                sh '/bin/sh -c "while ! wget -q0- http://learner-api-server-${BUILD_ID}:3000; do sleep 5; done"'
                 sh '''newman run \\
                     collection.json \\
                     --env-var url=http://learner-api-server-${BUILD_ID}:3000 \\
