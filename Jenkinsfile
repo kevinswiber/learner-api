@@ -46,8 +46,7 @@ pipeline {
 
             steps {
                 unstash 'collection'
-                sh 'apk add curl'
-                sh '''/bin/sh -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' learner-api-server-${BUILD_ID}:3000)" != "200" ]]; do sleep 5; done'; '''
+                sh '/bin/sh -c "while ! learner-api-server-${BUILD_ID}:3000; do sleep 5; done"'
                 sh '''newman run \\
                     collection.json \\
                     --env-var url=http://learner-api-server-${BUILD_ID}:3000 \\
