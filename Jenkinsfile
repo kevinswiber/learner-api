@@ -54,18 +54,13 @@ pipeline {
                     --reporter-junit-export newman/report.xml'''
             }
         }
-
-        stage('Cleanup') {
-            steps {
-                sh 'docker kill learner-api-server-${BUILD_ID} || true'
-                sh 'docker network rm learner-api-${BUILD_ID} || true'
-            }
-        }
     }
 
     
     post {
         always {
+            sh 'docker kill learner-api-server-${BUILD_ID} || true'
+            sh 'docker network rm learner-api-${BUILD_ID} || true'
             junit 'newman/report.xml'
         }
     }
