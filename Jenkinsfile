@@ -67,9 +67,9 @@ pipeline {
                     post {
                         always {
                             junit 'newman/report.xml'
-                            node(null) {
+                            /*node(null) {
                                 sh(script: 'docker kill learner-api-server-${BUILD_ID}')
-                            }
+                            }*/
                         }
                     }
                 }
@@ -80,7 +80,7 @@ pipeline {
     
     post {
         always {
-            //sh 'docker kill learner-api-server-${BUILD_ID} || true'
+            sh 'docker kill learner-api-server-${BUILD_ID} || true'
             sh 'docker network rm learner-api-${BUILD_ID} || true'
         }
     }
