@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Setup test environment') {
             steps {
-                sh 'docker network create learner-api-${BUILD_ID} || true'
+                sh 'docker network create learner-api-${BRANCH_NAME}-${BUILD_ID} || true'
                 sh '''curl \\
                     -H "X-API-Key: ${postman_api_key}" \\
                     https://api.getpostman.com/collections/${collection_id} > ${WORKSPACE}/collection.json'''
@@ -22,8 +22,8 @@ pipeline {
                 sh '''docker run \\
                     --rm \\
                     -p 3000:3000 \\
-                    --name learner-api-server-${BUILD_ID} \\
-                    --network learner-api-${BUILD_ID} \\
+                    --name learner-api-server-${BRANCH_NAME}-${BUILD_ID} \\
+                    --network learner-api-${BRANCH_NAME}-${BUILD_ID} \\
                     --detach \\
                     -v ${WORKSPACE}:/usr/src/app \\
                     --workdir /usr/src/app \\
@@ -40,16 +40,16 @@ pipeline {
             agent {
                 docker {
                     image 'postman/newman'
-                    args '-v ${WORKSPACE}:/etc/newman --network learner-api-${BUILD_ID} --entrypoint=""'
+                    args '-v ${WORKSPACE}:/etc/newman --network learner-api-${BRANCH_NAME}-${BUILD_ID} --entrypoint=""'
                 }
             }
 
             steps {
                 unstash 'collection'
-                sh '/bin/sh -c "while ! wget -q --spider http://learner-api-server-${BUILD_ID}:3000; do sleep 5; done"'
+                sh '/bin/sh -c "while ! wget -q --spider http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:3000; do sleep 5; done"'
                 sh '''newman run \\
                     collection.json \\
-                    --env-var url=http://learner-api-server-${BUILD_ID}:3000 \\
+                    --env-var url=http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:3000 \\
                     --reporters cli,junit \\
                     --reporter-junit-export newman/report.xml'''
             }
@@ -65,8 +65,8 @@ pipeline {
     
     post {
         always {
-            sh 'docker kill learner-api-server-${BUILD_ID} || true'
-            sh 'docker network rm learner-api-${BUILD_ID} || true'
+            sh 'docker kill learner-api-server-${BRANCH_NAME}-${BUILD_ID} || true'
+            sh 'docker network rm learner-api-${BRANCH_NAME}-${BUILD_ID} || true'
         }
     }
 }

@@ -45,6 +45,17 @@ var routes = function(app) {
     return res.send(responseData);
   });
 
+  //patch request
+  app.patch("/info", function(req, res) {
+    let responseData = new Object();
+    responseData["message"] =
+      "You made a PATCH request to update id=" +
+      req.query.id +
+      " with the following data!";
+    responseData["data"] = req.body;
+    return res.send(responseData);
+  });
+
   //delete request with query parameter
   app.delete("/info", function(req, res) {
     return res.sendStatus(204);
