@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[[ expr "$BRANCH_NAME" : "PR-" ]] && api_version_prefix="pr" && BRANCH_NAME=$(echo "${BRANCH_NAME}" | awk '{ print substr( $0, 4 ) }') || api_version_prefix="branch"
+[[ $(expr "$BRANCH_NAME" : "PR-") != 0 ]] && api_version_prefix="pr" && BRANCH_NAME=$(echo "${BRANCH_NAME}" | awk '{ print substr( $0, 4 ) }') || api_version_prefix="branch"
 [[ "$DEFAULT_BRANCH" != "$BRANCH_NAME" ]] && api_version_name="${api_version_prefix}:${BRANCH_NAME}" || api_version_name="${DEFAULT_API_VERSION}"
 
 echo "default branch: ${DEFAULT_BRANCH}"
