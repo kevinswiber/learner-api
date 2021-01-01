@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[[ "$BRANCH_NAME" == "PR-"* ]] api_version_prefix = "branch" || api_version_prefix = "pr"
+[[ "$BRANCH_NAME" == "PR-"* ]] api_version_prefix="branch" || api_version_prefix="pr"
 [[ "$DEFAULT_BRANCH" != "$BRANCH_NAME" ]] && api_version_name="${api_version_prefix}:${BRANCH_NAME}" || api_version_name="${DEFAULT_API_VERSION}"
 
 echo "default branch: ${DEFAULT_BRANCH}"
