@@ -13,7 +13,7 @@ pipeline {
             agent {
                 docker {
                     image 'endeveit/docker-jq'
-                    args '-v ${WORKSPACE}/ci:/etc/ci -e POSTMAN_API_KEY=${postman_api_key} -e BRANCH_NAME="${BRANCH_NAME}" -e DEFAULT_BRANCH="${git_default_branch}" -e DEFAULT_API_VERSION="${default_api_version}" API_ID="${api_id}"'
+                    args '-v ${WORKSPACE}/ci:/etc/ci -e POSTMAN_API_KEY=${postman_api_key} -e BRANCH_NAME=${BRANCH_NAME} -e DEFAULT_BRANCH=${git_default_branch_name} -e DEFAULT_API_VERSION=${postman_default_api_version} -e API_ID=${postman_api_id}'
                 }
             }
 
@@ -25,6 +25,7 @@ pipeline {
 
         stage('Run API server') {
             steps {
+                sh 'docker network create learner-api-${BRANCH_NAME}-${BUILD_ID} || true'
                 sh '''docker run \\
                     --rm \\
                     -p 3000:3000 \\
@@ -54,7 +55,7 @@ pipeline {
                 unstash 'collection'
                 sh '/bin/sh -c "while ! wget -q --spider http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:3000; do sleep 5; done"'
                 sh '''newman run \\
-                    collection.json \\
+                    postman_collection.json \\
                     --env-var url=http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:3000 \\
                     --reporters cli,junit \\
                     --reporter-junit-export newman/report.xml'''
