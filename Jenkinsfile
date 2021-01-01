@@ -13,7 +13,7 @@ pipeline {
             agent {
                 docker {
                     image 'endeveit/docker-jq'
-                    args '-v ${WORKSPACE}/ci:/etc/ci -e BRANCH_NAME="${BRANCH_NAME}" -e DEFAULT_BRANCH="${git_default_branch}" -e DEFAULT_API_VERSION="${default_api_version}" API_ID="${api_id}"'
+                    args '-v ${WORKSPACE}/ci:/etc/ci -e POSTMAN_API_KEY=${postman_api_key} -e BRANCH_NAME="${BRANCH_NAME}" -e DEFAULT_BRANCH="${git_default_branch}" -e DEFAULT_API_VERSION="${default_api_version}" API_ID="${api_id}"'
                 }
             }
 
