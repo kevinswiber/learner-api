@@ -11,7 +11,7 @@ echo "api id: ${API_ID}"
 api_version_id=$(curl -s -H "X-API-Key: ${POSTMAN_API_KEY}" \
     "https://api.getpostman.com/apis/${API_ID}/versions" | \
     jq -r --arg API_VERSION_NAME "${api_version_name}" \
-    '.versions[] | select(.name == $API_VERSION_NAME) | .id')
+    '.versions[] | select(.name | contains($API_VERSION_NAME)) | .id')
 
 echo "api_version_id: ${api_version_id}"
 
