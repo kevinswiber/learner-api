@@ -3,17 +3,23 @@ pipeline {
 
     environment {
         postman_api_key = credentials('postman-api-key')
-        collection_id = '10825352-5fcf2dac-164c-4891-b738-126babc795ad'
+        postman_api_id = '0d28ef2e-2e71-4277-9084-dee6a015fbf7'
+        postman_default_api_version = 'develop'
+        git_default_branch_name = 'main'
     }
     
     stages {
         stage('Setup test environment') {
+            agent {
+                docker {
+                    image 'endeveit/docker-jq'
+                    args '-v ${WORKSPACE}/ci:/etc/ci -e BRANCH_NAME="${BRANCH_NAME}" -e DEFAULT_BRANCH="${git_default_branch}" -e DEFAULT_API_VERSION="${default_api_version}" API_ID="${api_id}"'
+                }
+            }
+
             steps {
-                sh 'docker network create learner-api-${BRANCH_NAME}-${BUILD_ID} || true'
-                sh '''curl \\
-                    -H "X-API-Key: ${postman_api_key}" \\
-                    https://api.getpostman.com/collections/${collection_id} > ${WORKSPACE}/collection.json'''
-                stash name: 'collection', includes: 'collection.json'
+                sh '/etc/ci/find-collection.sh'
+                stash name: 'collection', includes: 'postman_collection.json'
             }
         }
 
