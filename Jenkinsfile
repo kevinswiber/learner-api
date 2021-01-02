@@ -29,7 +29,7 @@ pipeline {
 
             steps {
                 sh '/etc/ci/fetch-postman-assets.sh'
-                stash name: 'collection', includes: 'postman_collection.json'
+                stash name: 'postman-assets', includes: 'postman_collection.json,postman_environment.json'
             }
         }
 
@@ -67,7 +67,7 @@ pipeline {
                     }
 
                     steps {
-                        unstash 'collection'
+                        unstash 'postman-assets'
                         sh '/bin/sh -c "while ! wget -q --spider ' +
                             'http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:${api_server_port}; ' +
                             'do sleep 5; done"'
