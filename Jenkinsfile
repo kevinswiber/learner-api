@@ -13,7 +13,12 @@ pipeline {
             agent {
                 docker {
                     image 'endeveit/docker-jq'
-                    args '-v ${WORKSPACE}/ci:/etc/ci -e POSTMAN_API_KEY=${postman_api_key} -e BRANCH_NAME=${BRANCH_NAME} -e DEFAULT_BRANCH=${git_default_branch_name} -e DEFAULT_API_VERSION=${postman_default_api_version} -e API_ID=${postman_api_id}'
+                    args '-v ${WORKSPACE}/ci:/etc/ci ' +
+                        '-e POSTMAN_API_KEY=${postman_api_key} ' +
+                        '-e BRANCH_NAME=${BRANCH_NAME} ' +
+                        '-e DEFAULT_BRANCH=${git_default_branch_name} ' +
+                        '-e DEFAULT_API_VERSION=${postman_default_api_version} ' +
+                        '-e API_ID=${postman_api_id}'
                 }
             }
 
@@ -39,7 +44,7 @@ pipeline {
             }
         }
 
-        stage('Test API') {
+        stage('Postman Tests') {
             options {
                 timeout(time: 10, unit: 'MINUTES')
             }
@@ -47,13 +52,17 @@ pipeline {
             agent {
                 docker {
                     image 'postman/newman'
-                    args '-v ${WORKSPACE}:/etc/newman --network learner-api-${BRANCH_NAME}-${BUILD_ID} --entrypoint=""'
+                    args '-v ${WORKSPACE}:/etc/newman ' +
+                        '--network learner-api-${BRANCH_NAME}-${BUILD_ID} ' +
+                        '--entrypoint=""'
                 }
             }
 
             steps {
                 unstash 'collection'
-                sh '/bin/sh -c "while ! wget -q --spider http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:3000; do sleep 5; done"'
+                sh '/bin/sh -c "while ! wget -q --spider ' +
+                    'http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:3000; ' +
+                    'do sleep 5; done"'
                 sh '''newman run \\
                     postman_collection.json \\
                     --env-var url=http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:3000 \\
