@@ -44,7 +44,7 @@ pipeline {
             }
         }
 
-        stage('Test API') {
+        stage('Postman Tests') {
             options {
                 timeout(time: 10, unit: 'MINUTES')
             }
