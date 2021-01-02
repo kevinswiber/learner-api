@@ -1,4 +1,3 @@
-def apiServerPort
 pipeline {
     agent any
 
@@ -7,6 +6,11 @@ pipeline {
         postman_api_id = '0d28ef2e-2e71-4277-9084-dee6a015fbf7'
         postman_default_api_version = 'develop'
         git_default_branch_name = 'main'
+        api_server_port = '3000'
+    }
+
+    options {
+        preserveStashes()
     }
 
     stages {
@@ -37,7 +41,7 @@ pipeline {
                         sh 'docker network create learner-api-${BRANCH_NAME}-${BUILD_ID} || true'
                         sh '''docker run \\
                             --rm \\
-                            -p :3000 \\
+                            -p :${api_server_port} \\
                             --name learner-api-server-${BRANCH_NAME}-${BUILD_ID} \\
                             --network learner-api-${BRANCH_NAME}-${BUILD_ID} \\
                             --detach \\
@@ -65,15 +69,15 @@ pipeline {
                     steps {
                         unstash 'collection'
                         sh '/bin/sh -c "while ! wget -q --spider ' +
-                            'http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:3000; ' +
+                            'http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:${api_server_port}; ' +
                             'do sleep 5; done"'
                         sh '''newman run \\
                             postman_collection.json \\
-                            --env-var url=http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:3000 \\
+                            --env-var url=http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:${api_server_port} \\
                             --reporters cli,junit \\
                             --reporter-junit-export newman/report.xml'''
                     }
-                    
+
                     post {
                         always {
                             junit 'newman/report.xml'
