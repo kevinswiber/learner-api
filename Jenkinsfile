@@ -4,7 +4,7 @@ pipeline {
     environment {
         postman_api_key = credentials('postman-api-key')
         postman_api_id = '0d28ef2e-2e71-4277-9084-dee6a015fbf7'
-        postman_default_api_version = 'develop'
+        postman_default_api_version = 'main'
         git_default_branch_name = 'main'
         api_server_port = '3000'
     }
