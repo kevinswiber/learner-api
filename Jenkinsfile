@@ -1,3 +1,4 @@
+def apiServerPort
 pipeline {
     agent any
 
@@ -33,7 +34,7 @@ pipeline {
                 sh 'docker network create learner-api-${BRANCH_NAME}-${BUILD_ID} || true'
                 sh '''docker run \\
                     --rm \\
-                    -p 3000:3000 \\
+                    -p :3000 \\
                     --name learner-api-server-${BRANCH_NAME}-${BUILD_ID} \\
                     --network learner-api-${BRANCH_NAME}-${BUILD_ID} \\
                     --detach \\
@@ -41,6 +42,9 @@ pipeline {
                     --workdir /usr/src/app \\
                     node:lts-buster-slim \\
                     /bin/bash -c "npm install && npm start"'''
+                script {
+                    apiServerPort = sh(script: 'hostport=$(docker port learner-api-server-${BRANCH_NAME}-${BUILD_ID} 3000/tcp) && echo "${hostport#*:}"').trim()
+                }
             }
         }
 
@@ -65,7 +69,7 @@ pipeline {
                     'do sleep 5; done"'
                 sh '''newman run \\
                     postman_collection.json \\
-                    --env-var url=http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:3000 \\
+                    --env-var url=http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:${apiServerPort} \\
                     --reporters cli,junit \\
                     --reporter-junit-export newman/report.xml'''
             }
