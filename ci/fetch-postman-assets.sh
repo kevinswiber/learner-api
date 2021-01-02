@@ -51,7 +51,7 @@ curl -s -H "X-API-Key: ${POSTMAN_API_KEY}" \
     "https://api.getpostman.com/environments/${environment_id}" | \
     jq '.environment' > postman_environment.json
 
-if [[ -n ./postman_environment.json ]]; then
+if [[ -n ./postman_environment.json && ! -z "$environment_id" ]]; then
     echo 'success: environment written'
 else
     echo "warning: environment not found.  Did you remember to add the environment to the API Version?"
