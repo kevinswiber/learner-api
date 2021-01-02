@@ -43,7 +43,7 @@ pipeline {
                     node:lts-buster-slim \\
                     /bin/bash -c "npm install && npm start"'''
                 script {
-                    apiServerPort = sh(script: 'hostport=$(docker port learner-api-server-${BRANCH_NAME}-${BUILD_ID} 3000/tcp) && echo "${hostport#*:}"').trim()
+                    apiServerPort = sh(script: 'hostport=$(docker port learner-api-server-${BRANCH_NAME}-${BUILD_ID} 3000/tcp) && echo "${hostport#*:}"', returnStdout: true).trim()
                 }
             }
         }
