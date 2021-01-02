@@ -17,7 +17,7 @@ if [ -z "$api_version_id" ]; then
     echo "api version not found, defaulting to: ${DEFAULT_API_VERSION}"
     api_version_id=$(curl -s -H "X-API-Key: ${POSTMAN_API_KEY}" \
         "https://api.getpostman.com/apis/${API_ID}/versions" | \
-        jq -r --arg API_VERSION_NAME "${DEFAULT_BRANCH}" \
+        jq -r --arg API_VERSION_NAME "${DEFAULT_API_VERSION}" \
         '.versions[] | select(.name | contains($API_VERSION_NAME)) | .id')
 fi
 
