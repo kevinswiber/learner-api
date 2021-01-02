@@ -45,17 +45,18 @@ pipeline {
                             --workdir /usr/src/app \\
                             node:lts-buster-slim \\
                             /bin/bash -c "npm install && npm start"'''
-                        script {
-                            apiServerPort = sh(
-                                script:
-                                    'hostport=$(docker port learner-api-server-${BRANCH_NAME}-${BUILD_ID} 3000/tcp) ' +
-                                    '&& echo "${hostport#*:}"',
-                                returnStdout: true).trim()
-                        }
                     }
                 }
 
                 stage('Postman Tests') {
+                    environment {
+                        apiServerPort = sh(
+                            script:
+                                'hostport=$(docker port learner-api-server-${BRANCH_NAME}-${BUILD_ID} 3000/tcp) ' +
+                                '&& echo "${hostport#*:}"',
+                            returnStdout: true).trim() 
+                    }
+
                     options {
                         timeout(time: 10, unit: 'MINUTES')
                     }
@@ -80,14 +81,15 @@ pipeline {
                             --reporters cli,junit \\
                             --reporter-junit-export newman/report.xml'''
                     }
+                }
 
-                    post {
-                        always {
-                            sh 'docker kill learner-api-server-${BRANCH_NAME}-${BUILD_ID} || true'
-                            sh 'docker network rm learner-api-${BRANCH_NAME}-${BUILD_ID} || true'
-                            junit 'newman/report.xml'
-                        }
-                    }
+            }
+
+            post {
+                always {
+                    sh 'docker kill learner-api-server-${BRANCH_NAME}-${BUILD_ID} || true'
+                    sh 'docker network rm learner-api-${BRANCH_NAME}-${BUILD_ID} || true'
+                    junit 'newman/report.xml'
                 }
             }
         }
