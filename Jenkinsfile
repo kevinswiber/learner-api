@@ -28,7 +28,7 @@ pipeline {
             }
 
             steps {
-                sh '/etc/ci/find-collection.sh'
+                sh '/etc/ci/fetch-postman-assets.sh'
                 stash name: 'collection', includes: 'postman_collection.json'
             }
         }
@@ -73,6 +73,7 @@ pipeline {
                             'do sleep 5; done"'
                         sh '''newman run \\
                             postman_collection.json \\
+                            --environment postman_environment.json \\
                             --env-var url=http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:${api_server_port} \\
                             --reporters cli,junit \\
                             --reporter-junit-export newman/report.xml'''
@@ -84,7 +85,6 @@ pipeline {
                         }
                     }
                 }
-
             }
 
             post {
