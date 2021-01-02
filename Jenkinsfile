@@ -49,14 +49,6 @@ pipeline {
                 }
 
                 stage('Postman Tests') {
-                    environment {
-                        apiServerPort = sh(
-                            script:
-                                'hostport=$(docker port learner-api-server-${BRANCH_NAME}-${BUILD_ID} 3000/tcp) ' +
-                                '&& echo "${hostport#*:}"',
-                            returnStdout: true).trim() 
-                    }
-
                     options {
                         timeout(time: 10, unit: 'MINUTES')
                     }
@@ -77,7 +69,7 @@ pipeline {
                             'do sleep 5; done"'
                         sh '''newman run \\
                             postman_collection.json \\
-                            --env-var url=http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:${apiServerPort} \\
+                            --env-var url=http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:3000 \\
                             --reporters cli,junit \\
                             --reporter-junit-export newman/report.xml'''
                     }
