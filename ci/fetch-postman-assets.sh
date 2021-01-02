@@ -24,19 +24,14 @@ fi
 
 echo "api_version_id: ${api_version_id}"
 
-# if no api_version_id, exit with error.
-
-relation_id=$(curl -s -H "X-API-Key: ${POSTMAN_API_KEY}" \
+integration_test_relation_id=$(curl -s -H "X-API-Key: ${POSTMAN_API_KEY}" \
     "https://api.getpostman.com/apis/${API_ID}/versions/${api_version_id}/integrationtest" | \
     jq -r '.integrationtest[] | .id')
 
-# if no relation_id, exit with error.
+echo "integration_test_relation_id: ${integration_test_relation_id}"
 
-echo "relation_id: ${relation_id}"
-
-# should check response and exit with error on non-200.
 curl -s -H "X-API-Key: ${POSTMAN_API_KEY}" \
-    "https://api.getpostman.com/apis/${API_ID}/versions/${api_version_id}/integrationtest/${relation_id}" | \
+    "https://api.getpostman.com/apis/${API_ID}/versions/${api_version_id}/integrationtest/${integration_test_relation_id}" | \
     jq --arg API_VERSION_NAME "${api_version_name}" \
     'select(.versionTag.name | contains($API_VERSION_NAME)) | .collection' > postman_collection.json
 
@@ -45,4 +40,21 @@ if [[ $(jq 'has("info")' ./postman_collection.json) == "true" ]]; then
 else
     echo "error: tagged collection not found.  Did you remember to tag the collection with the API Version?"
     exit 1
+fi
+
+environment_id=$(curl -s -H "X-API-Key: ${POSTMAN_API_KEY}" \
+    "https://api.getpostman.com/apis/${API_ID}/versions/${api_version_id}/environment" | \
+    jq -r '.environment[] | .id')
+
+echo "environment_id: ${environment_id}"
+curl -s -H "X-API-Key: ${POSTMAN_API_KEY}" \
+    "https://api.getpostman.com/environments/${environment_id}" | \
+    jq '.environment' > postman_environment.json
+
+if [[ -n ./postman_environment.json ]]; then
+    echo 'success: environment written'
+else
+    echo "warning: environment not found.  Did you remember to add the environment to the API Version?"
+    echo "using empty environment instead: {}"
+    echo "{}" > ./postman_environment.json
 fi
