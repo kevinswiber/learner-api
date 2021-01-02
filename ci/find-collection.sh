@@ -14,11 +14,12 @@ api_version_id=$(curl -s -H "X-API-Key: ${POSTMAN_API_KEY}" \
     '.versions[] | select(.name | contains($API_VERSION_NAME)) | .id')
 
 if [ -z "$api_version_id" ]; then
-    echo "api version not found, defaulting to: ${DEFAULT_API_VERSION}"
+    echo "api version name not found, defaulting to: ${DEFAULT_API_VERSION}"
+    api_version_name="$DEFAULT_API_VERSION"
     api_version_id=$(curl -s -H "X-API-Key: ${POSTMAN_API_KEY}" \
         "https://api.getpostman.com/apis/${API_ID}/versions" | \
-        jq -r --arg API_VERSION_NAME "${DEFAULT_API_VERSION}" \
-        '.versions[] | select(.name | contains($API_VERSION_NAME)) | .id')
+        jq -r --arg API_VERSION_NAME "${api_version_name}" \
+        '.versions[] | select(.name | contains($API_VERSION_NAME)) | .id'))
 fi
 
 echo "api_version_id: ${api_version_id}"
