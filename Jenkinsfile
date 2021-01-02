@@ -73,6 +73,12 @@ pipeline {
                             --reporters cli,junit \\
                             --reporter-junit-export newman/report.xml'''
                     }
+                    
+                    post {
+                        always {
+                            junit 'newman/report.xml'
+                        }
+                    }
                 }
 
             }
@@ -81,7 +87,6 @@ pipeline {
                 always {
                     sh 'docker kill learner-api-server-${BRANCH_NAME}-${BUILD_ID} || true'
                     sh 'docker network rm learner-api-${BRANCH_NAME}-${BUILD_ID} || true'
-                    junit 'newman/report.xml'
                 }
             }
         }
