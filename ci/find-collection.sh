@@ -1,7 +1,7 @@
 #!/bin/sh
 
-[[ $(expr "$BRANCH_NAME" : "PR-") != 0 ]] && api_version_prefix="pr" && BRANCH_NAME=$(echo "${BRANCH_NAME}" | awk '{ print substr( $0, 4 ) }') || api_version_prefix="branch"
-[[ "$DEFAULT_BRANCH" != "$BRANCH_NAME" ]] && api_version_name="${api_version_prefix}:${BRANCH_NAME}" || api_version_name="${DEFAULT_API_VERSION}"
+[[ $(expr "$BRANCH_NAME" : "PR-") != 0 ]] && api_version_prefix="pr" && BRANCH_NAME=$(echo "$BRANCH_NAME" | awk '{ print substr( $0, 4 ) }') || api_version_prefix="branch"
+[[ "$DEFAULT_BRANCH" != "$BRANCH_NAME" ]] && api_version_name="${api_version_prefix}:${BRANCH_NAME}" || api_version_name="$DEFAULT_API_VERSION"
 
 echo "default branch: ${DEFAULT_BRANCH}"
 echo "branch name: ${BRANCH_NAME}"
@@ -12,6 +12,14 @@ api_version_id=$(curl -s -H "X-API-Key: ${POSTMAN_API_KEY}" \
     "https://api.getpostman.com/apis/${API_ID}/versions" | \
     jq -r --arg API_VERSION_NAME "${api_version_name}" \
     '.versions[] | select(.name | contains($API_VERSION_NAME)) | .id')
+
+if [ -z "$api_version_id" ]; then
+    echo "branch name not found, defaulting to: ${DEFAULT_BRANCH}"
+    api_version_id=$(curl -s -H "X-API-Key: ${POSTMAN_API_KEY}" \
+        "https://api.getpostman.com/apis/${API_ID}/versions" | \
+        jq -r --arg API_VERSION_NAME "${DEFAULT_BRANCH}" \
+        '.versions[] | select(.name | contains($API_VERSION_NAME)) | .id')
+fi
 
 echo "api_version_id: ${api_version_id}"
 
