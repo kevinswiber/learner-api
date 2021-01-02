@@ -55,6 +55,6 @@ if [[ -n ./postman_environment.json ]]; then
     echo 'success: environment written'
 else
     echo "warning: environment not found.  Did you remember to add the environment to the API Version?"
-    echo "using empty environment instead: {}"
-    echo "{}" > ./postman_environment.json
+    echo "using empty environment instead"
+    echo '{"values":[]}' > ./postman_environment.json
 fi
