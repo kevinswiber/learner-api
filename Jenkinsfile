@@ -7,7 +7,7 @@ pipeline {
         postman_default_api_version = 'main'
         git_default_branch_name = 'main'
         api_server_port = '3000'
-        docker_name = "${JOB_NAME}-${BRANCH_NAME}-${BUILD_NUMBER}".replaceAll("[^a-zA-Z0-9]", "-")
+        docker_name = "${BUILD_TAG}".replaceAll("[^a-zA-Z0-9]", "-")
     }
 
     options {
