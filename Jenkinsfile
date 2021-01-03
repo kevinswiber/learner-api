@@ -7,6 +7,7 @@ pipeline {
         postman_default_api_version = 'main'
         git_default_branch_name = 'main'
         api_server_port = '3000'
+        fixed_branch_name = "${BRANCH_NAME}".replaceAll("[^a-zA-Z0-9]", "-")
     }
 
     options {
@@ -38,12 +39,12 @@ pipeline {
             stages {
                 stage('Launch API Server') {
                     steps {
-                        sh 'docker network create learner-api-${BRANCH_NAME}-${BUILD_ID} || true'
+                        sh 'docker network create learner-api-${fixed_branch_name}-${BUILD_ID} || true'
                         sh '''docker run \\
                             --rm \\
                             -p :${api_server_port} \\
-                            --name learner-api-server-${BRANCH_NAME}-${BUILD_ID} \\
-                            --network learner-api-${BRANCH_NAME}-${BUILD_ID} \\
+                            --network learner-api-${fixed_branch_name}-${BUILD_ID} \\
+                            --network-alias api \\
                             --detach \\
                             -v ${WORKSPACE}:/usr/src/app \\
                             --workdir /usr/src/app \\
@@ -61,7 +62,7 @@ pipeline {
                         docker {
                             image 'postman/newman'
                             args '-v ${WORKSPACE}:/etc/newman ' +
-                                '--network learner-api-${BRANCH_NAME}-${BUILD_ID} ' +
+                                '--network learner-api-${fixed_branch_name}-${BUILD_ID} ' +
                                 '--entrypoint=""'
                         }
                     }
@@ -69,12 +70,12 @@ pipeline {
                     steps {
                         unstash 'postman-assets'
                         sh '/bin/sh -c "while ! wget -q --spider ' +
-                            'http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:${api_server_port}; ' +
+                            'http://api:${api_server_port}; ' +
                             'do sleep 5; done"'
                         sh '''newman run \\
                             postman_collection.json \\
                             --environment postman_environment.json \\
-                            --env-var url=http://learner-api-server-${BRANCH_NAME}-${BUILD_ID}:${api_server_port} \\
+                            --env-var url=http://api:${api_server_port} \\
                             --reporters cli,junit \\
                             --reporter-junit-export newman/report.xml'''
                     }
@@ -89,8 +90,8 @@ pipeline {
 
             post {
                 always {
-                    sh 'docker kill learner-api-server-${BRANCH_NAME}-${BUILD_ID} || true'
-                    sh 'docker network rm learner-api-${BRANCH_NAME}-${BUILD_ID} || true'
+                    sh 'docker kill learner-api-server-${fixed_branch_name}-${BUILD_ID} || true'
+                    sh 'docker network rm learner-api-${fixed_branch_name}-${BUILD_ID} || true'
                 }
             }
         }
