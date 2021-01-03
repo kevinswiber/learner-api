@@ -7,7 +7,7 @@ pipeline {
         postman_default_api_version = 'main'
         git_default_branch_name = 'main'
         api_server_port = '3000'
-        fixed_branch_name = "${BRANCH_NAME}".replaceAll("[^a-zA-Z0-9]", "-")
+        docker_name = "${JOB_NAME}-${BRANCH_NAME}-${BUILD_NUMBER}".replaceAll("[^a-zA-Z0-9]", "-")
     }
 
     options {
@@ -39,11 +39,12 @@ pipeline {
             stages {
                 stage('Launch API Server') {
                     steps {
-                        sh 'docker network create learner-api-${fixed_branch_name}-${BUILD_ID} || true'
+                        sh 'docker network create ${docker_name} || true'
                         sh '''docker run \\
                             --rm \\
                             -p :${api_server_port} \\
-                            --network learner-api-${fixed_branch_name}-${BUILD_ID} \\
+                            --name ${docker_name} \\
+                            --network ${docker_name} \\
                             --network-alias api \\
                             --detach \\
                             -v ${WORKSPACE}:/usr/src/app \\
@@ -61,9 +62,7 @@ pipeline {
                     agent {
                         docker {
                             image 'postman/newman'
-                            args '-v ${WORKSPACE}:/etc/newman ' +
-                                '--network learner-api-${fixed_branch_name}-${BUILD_ID} ' +
-                                '--entrypoint=""'
+                            args '-v ${WORKSPACE}:/etc/newman --network ${docker_name} --entrypoint=""'
                         }
                     }
 
@@ -90,8 +89,8 @@ pipeline {
 
             post {
                 always {
-                    sh 'docker kill learner-api-server-${fixed_branch_name}-${BUILD_ID} || true'
-                    sh 'docker network rm learner-api-${fixed_branch_name}-${BUILD_ID} || true'
+                    sh 'docker kill ${docker_name} || true'
+                    sh 'docker network rm ${docker_name} || true'
                 }
             }
         }
