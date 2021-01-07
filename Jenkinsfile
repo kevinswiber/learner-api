@@ -1,14 +1,11 @@
+/* groovylint-disable CompileStatic,NestedBlockDepth */
+
+String dockerName = "${BUILD_TAG}".replaceAll('[^a-zA-Z0-9]', '-')
+String postmanAssetsID = 'postman-assets'
+String apiServerPort = '3000'
+
 pipeline {
     agent any
-
-    environment {
-        postman_api_key = credentials('postman-api-key')
-        postman_api_id = '0d28ef2e-2e71-4277-9084-dee6a015fbf7'
-        postman_default_api_version = 'main'
-        git_default_branch_name = 'main'
-        api_server_port = '3000'
-        docker_name = "${BUILD_TAG}".replaceAll("[^a-zA-Z0-9]", "-")
-    }
 
     options {
         preserveStashes()
@@ -18,19 +15,16 @@ pipeline {
         stage('Setup test environment') {
             agent {
                 docker {
-                    image 'endeveit/docker-jq'
-                    args '-v ${WORKSPACE}/ci:/etc/ci ' +
-                        '-e POSTMAN_API_KEY=${postman_api_key} ' +
-                        '-e BRANCH_NAME=${BRANCH_NAME} ' +
-                        '-e DEFAULT_BRANCH=${git_default_branch_name} ' +
-                        '-e DEFAULT_API_VERSION=${postman_default_api_version} ' +
-                        '-e API_ID=${postman_api_id}'
+                    image 'kevinswiber/curl-jq'
+                    args "-v ${WORKSPACE}/ci:/etc/ci"
                 }
             }
 
             steps {
-                sh '/etc/ci/fetch-postman-assets.sh'
-                stash name: 'postman-assets', includes: 'postman_collection.json,postman_environment.json'
+                withCredentials([string(credentialsId: 'postman-api-key', variable: 'POSTMAN_API_KEY')]) {
+                    sh '/etc/ci/fetch-postman-assets.sh'
+                }
+                stash name: "${postmanAssetsID}", includes: 'postman_collection.json,postman_environment.json'
             }
         }
 
@@ -39,18 +33,18 @@ pipeline {
             stages {
                 stage('Launch API Server') {
                     steps {
-                        sh 'docker network create ${docker_name} || true'
-                        sh '''docker run \\
+                        sh "docker network create ${dockerName} || true"
+                        sh """docker run \\
                             --rm \\
-                            -p :${api_server_port} \\
-                            --name ${docker_name} \\
-                            --network ${docker_name} \\
+                            -p :${apiServerPort} \\
+                            --name ${dockerName} \\
+                            --network ${dockerName} \\
                             --network-alias api \\
                             --detach \\
                             -v ${WORKSPACE}:/usr/src/app \\
                             --workdir /usr/src/app \\
                             node:lts-buster-slim \\
-                            /bin/bash -c "npm install && npm start"'''
+                            /bin/bash -c \"npm install && npm start\""""
                     }
                 }
 
@@ -62,21 +56,20 @@ pipeline {
                     agent {
                         docker {
                             image 'postman/newman'
-                            args '-v ${WORKSPACE}:/etc/newman --network ${docker_name} --entrypoint=""'
+                            args "-v ${WORKSPACE}:/etc/newman --network ${dockerName} --entrypoint=''"
+                            reuseNode true
                         }
                     }
 
                     steps {
-                        unstash 'postman-assets'
-                        sh '/bin/sh -c "while ! wget -q --spider ' +
-                            'http://api:${api_server_port}; ' +
-                            'do sleep 5; done"'
-                        sh '''newman run \\
+                        unstash "${postmanAssetsID}"
+                        sh "/bin/sh -c \"while ! wget -q --spider http://api:${apiServerPort}; do sleep 5; done\""
+                        sh """newman run \\
                             postman_collection.json \\
                             --environment postman_environment.json \\
-                            --env-var url=http://api:${api_server_port} \\
+                            --env-var url=http://api:${apiServerPort} \\
                             --reporters cli,junit \\
-                            --reporter-junit-export newman/report.xml'''
+                            --reporter-junit-export newman/report.xml"""
                     }
 
                     post {
@@ -89,8 +82,8 @@ pipeline {
 
             post {
                 always {
-                    sh 'docker kill ${docker_name} || true'
-                    sh 'docker network rm ${docker_name} || true'
+                    sh "docker kill ${dockerName} || true"
+                    sh "docker network rm ${dockerName} || true"
                 }
             }
         }
