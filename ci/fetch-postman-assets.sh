@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if [[ -z "$JOB_NAME" ]]; then
     echo "JOB_NAME is required to execute this script."
