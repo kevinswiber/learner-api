@@ -58,7 +58,7 @@ if [ -z "$api_version_id" ]; then
     api_version_id=$(curl -s -H "X-API-Key: $POSTMAN_API_KEY" \
         "https://api.getpostman.com/apis/$api_id/versions" | \
         jq -r --arg API_VERSION_NAME "$api_version_name" \
-        '.versions[] | select(.name | test("(^|\\s)" + $API_VERSION_NAME + "($|\\s)") | .id')
+        '.versions[] | select(.name | test("(^|\\s)" + $API_VERSION_NAME + "($|\\s)")) | .id')
 fi
 
 echo "api version id: $api_version_id"
