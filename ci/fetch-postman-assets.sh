@@ -15,6 +15,10 @@ if [[ -z "$BRANCH_NAME" ]]; then
     exit 1
 fi
 
+if [[ -z "$GIT_REF_TYPE" ]]; then
+    GIT_REF_TYPE=branch
+fi
+
 job_label="job:${JOB_NAME%/*}" # take only the first part of the job name
 
 api_id=$(curl -s -H "X-API-Key: $POSTMAN_API_KEY" \
@@ -35,7 +39,7 @@ default_api_version_name_and_branch=$(curl -s -H "X-API-Key: $POSTMAN_API_KEY" \
 default_api_version_name="${default_api_version_name_and_branch%,*}"
 git_default_branch_name="${default_api_version_name_and_branch##*,}"
 
-[[ $(expr "$BRANCH_NAME" : "PR-") != 0 ]] && api_version_prefix="pr" && BRANCH_NAME=$(echo "$BRANCH_NAME" | awk '{ print substr( $0, 4 ) }') || api_version_prefix="branch"
+[[ $(expr "$BRANCH_NAME" : "PR-") != 0 ]] && api_version_prefix="pr" && BRANCH_NAME=$(echo "$BRANCH_NAME" | awk '{ print substr( $0, 4 ) }') || api_version_prefix="$GIT_REF_TYPE"
 [[ "$git_default_branch_name" != "$BRANCH_NAME" ]] && api_version_name="$api_version_prefix:$BRANCH_NAME" || api_version_name="$default_api_version_name"
 
 echo "job name: ${JOB_NAME%/*}"
