@@ -8,21 +8,7 @@ pipeline {
     agent any
 
     environment {
-        GIT_REF_TYPE = sh(returnStdout: true, script:
-        '''\
-            #!/bin/sh
-            GIT_REMOTE=$(git remote)
-            if git rev-parse --verify -q refs/remotes/${GIT_REMOTE}/${GIT_BRANCH}^{} | grep -q ${GIT_COMMIT}; then
-                echo branch
-                exit 0
-            elif git rev-parse --verify -q refs/tags/${GIT_BRANCH}^{} | grep -q ${GIT_COMMIT}; then
-                echo tag
-                exit 0
-            else
-                echo unknown
-                exit 0
-            fi
-        '''.stripIndent()).trim()
+        GIT_REF_TYPE = sh(returnStdout: true, script: './ci/git-ref-type.sh'.trim())
     }
 
     options {
