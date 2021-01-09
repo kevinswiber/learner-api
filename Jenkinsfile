@@ -8,7 +8,7 @@ pipeline {
     agent any
 
     environment {
-        GIT_REF_TYPE = sh(returnStdout: true, script: './ci/git-ref-type.sh'.trim())
+        GIT_REF_TYPE = sh(returnStdout: true, script: './ci/git-ref-type.sh').trim()
     }
 
     options {
