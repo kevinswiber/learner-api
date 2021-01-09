@@ -60,10 +60,6 @@ var routes = function (app) {
   app.delete("/info", function (req, res) {
     return res.sendStatus(204);
   });
-
-  app.get('/health', (_, res) => {
-    res.sendStatus(200);
-  })
 };
 
 module.exports = routes;
