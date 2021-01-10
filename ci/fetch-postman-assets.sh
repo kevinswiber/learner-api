@@ -15,6 +15,10 @@ if [[ -z "$BRANCH_NAME" ]]; then
     exit 1
 fi
 
+if [[ -z "$TEST_TYPE" ]]; then
+    TEST_TYPE=testsuite
+fi
+
 if [[ -z "$GIT_REF_TYPE" ]]; then
     GIT_REF_TYPE=branch
 fi
@@ -67,19 +71,19 @@ fi
 
 echo "api version id: $api_version_id"
 
-integration_test_relation_id=$(curl -s -H "X-API-Key: $POSTMAN_API_KEY" \
-    "https://api.getpostman.com/apis/$api_id/versions/$api_version_id/integrationtest" | \
-    jq -r '.integrationtest[] | .id')
+test_relation_id=$(curl -s -H "X-API-Key: $POSTMAN_API_KEY" \
+    "https://api.getpostman.com/apis/$api_id/versions/$api_version_id/$TEST_TYPE" | \
+    jq -r --arg TEST_TYPE "$TEST_TYPE" '.[$TEST_TYPE][] | .id')
 
-echo "integration test relation id: $integration_test_relation_id"
+echo "test relation id: $test_relation_id"
 
 curl -s -H "X-API-Key: $POSTMAN_API_KEY" \
-    "https://api.getpostman.com/apis/$api_id/versions/$api_version_id/integrationtest/$integration_test_relation_id" | \
+    "https://api.getpostman.com/apis/$api_id/versions/$api_version_id/$TEST_TYPE/$test_relation_id" | \
     jq --arg API_VERSION_NAME "$api_version_name" \
     'select(.versionTag.name | [$API_VERSION_NAME, "CURRENT"] | any)' > postman_version.tmp.json
 
 if [[ $(wc -c ./postman_version.tmp.json | awk '{print $1}') == '0' ]]; then
-    >&2 echo "error: integration test not found on api version."
+    >&2 echo "error: test not found on api version."
     exit 1
 fi
 
@@ -89,12 +93,12 @@ if [[ "$tag" == "CURRENT" ]]; then
     echo "warning: tagged collection not found, falling back to CURRENT version of collection."
 fi
 
-echo "integration test version tag: $tag"
+echo "test version tag: $tag"
 
 jq '.collection' ./postman_version.tmp.json > ./postman_collection.json
 
 if [[ $(wc -c ./postman_collection.json | awk '{print $1}') == '0' ]]; then
-    >&2 echo "error: integration test collection not found."
+    >&2 echo "error: test collection not found."
     exit 1
 fi
 
