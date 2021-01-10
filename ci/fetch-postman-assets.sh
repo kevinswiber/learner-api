@@ -88,12 +88,14 @@ if [[ $(wc -c ./postman_version.tmp.json | awk '{print $1}') == '0' ]]; then
 fi
 
 tag=$(jq -r '.versionTag.name' ./postman_version.tmp.json)
+group=$(jq -r '(.name | capture("(?:^|\\s)group:(?<group>\\S+)(?:\\s|$)") | .group)' ./postman_version.tmp.json)
 
 if [[ "$tag" == "CURRENT" ]]; then
     echo "warning: tagged collection not found, falling back to CURRENT version of collection."
 fi
 
 echo "test version tag: $tag"
+echo "group: $group"
 
 jq '.collection' ./postman_version.tmp.json > ./postman_collection.json
 
@@ -106,14 +108,25 @@ rm ./postman_version.tmp.json
 
 echo 'success: collection written'
 
-environment_id=$(curl -s -H "X-API-Key: $POSTMAN_API_KEY" \
-    "https://api.getpostman.com/apis/$api_id/versions/$api_version_id/environment" | \
-    jq -r '.environment[] | .id')
+if [[ ! -z "$group" ]]; then
+    environment_id=$(curl -s -H "X-API-Key: $POSTMAN_API_KEY" \
+        "https://api.getpostman.com/apis/$api_id/versions/$api_version_id/environment" | \
+        jq -r --arg GROUP "$group" '[.environment[] | select(.name | test("(^|\\s)group:$GROUP(\\s|$)")) | .id][0] // empty')
+fi
+
+if [[ -z "$environment_id" ]]; then
+    environment_id=$(curl -s -H "X-API-Key: $POSTMAN_API_KEY" \
+        "https://api.getpostman.com/apis/$api_id/versions/$api_version_id/environment" | \
+        jq -r '[.environment[] | select(.name | test("(^|\\s)default:true(\\s|$)")) | .id][0]')
+fi
 
 echo "environment id: $environment_id"
-curl -s -H "X-API-Key: $POSTMAN_API_KEY" \
-    "https://api.getpostman.com/environments/$environment_id" | \
-    jq '.environment' > postman_environment.json
+
+if [[ ! -z "$environment_id" ]]; then
+    curl -s -H "X-API-Key: $POSTMAN_API_KEY" \
+        "https://api.getpostman.com/environments/$environment_id" | \
+        jq '.environment' > postman_environment.json
+fi
 
 if [[ $(wc -c ./postman_environment.json | awk '{print $1}') != '0' && ! -z "$environment_id" ]]; then
     echo 'success: environment written'
