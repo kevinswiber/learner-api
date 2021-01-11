@@ -36,7 +36,6 @@ const server = app.listen(0, () => {
 
       server.close();
       execSync('rm ./postman_collection.json ./postman_environment.json')
-    })
-
-  })
-})
+    });
+  });
+});
