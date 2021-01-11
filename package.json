@@ -4,11 +4,13 @@
   "description": "Rest API Example",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "postman": "node ./run-postman-tests.js"
   },
   "dependencies": {
-    "express": "^4.12.4",
     "body-parser": "1.14.2",
+    "express": "^4.12.4",
+    "newman": "^5.2.2",
     "xml": "^1.0.1"
   },
   "engines": {
