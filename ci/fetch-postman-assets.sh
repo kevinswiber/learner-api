@@ -111,7 +111,7 @@ echo 'success: collection written'
 if [[ ! -z "$group" ]]; then
     environment_id=$(curl -s -H "X-API-Key: $POSTMAN_API_KEY" \
         "https://api.getpostman.com/apis/$api_id/versions/$api_version_id/environment" | \
-        jq -r --arg GROUP "$group" '[.environment[] | select(.name | test("(^|\\s)group:$GROUP(\\s|$)")) | .id][0] // empty')
+        jq -r --arg GROUP "$group" '[.environment[] | select(.name | test("(^|\\s)group:" + $GROUP + "(\\s|$)")) | .id][0] // empty')
 fi
 
 if [[ -z "$environment_id" ]]; then
