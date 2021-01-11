@@ -6,7 +6,7 @@ if [[ -z "$JOB_NAME" ]]; then
 fi
 
 if [[ -z "$POSTMAN_API_KEY" ]]; then
-    echo "POSTMAN_API_KEY is required to execute this script."
+    echo "POSTMAN_API_KEY is required to execute this script.  Get one here: https://go.postman.co/settings/me/api-keys"
     exit 1
 fi
 
