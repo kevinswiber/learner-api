@@ -55,7 +55,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://ghcr.io', 'github-container-registry') {
-                        image = docker.build("ghcr.io/kevinswiber/learner-api:${GIT_COMMIT.subString(0, 7)}")
+                        image = docker.build("ghcr.io/kevinswiber/learner-api:${GIT_COMMIT.substring(0, 7)}")
                         image.push()
                     }
                 }
