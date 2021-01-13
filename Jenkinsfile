@@ -1,5 +1,6 @@
 /* groovylint-disable CompileStatic, NestedBlockDepth */
-
+String dockerTag = "ghcr.io/kevinswiber/learner-api:${GIT_COMMIT.substring(0, 7)}"
+String dockerSaveFile = "${dockerTag.replace(':', '-')}"
 pipeline {
     agent any
 
@@ -51,13 +52,23 @@ pipeline {
             }
         }
 
-        stage('docker build and push') {
+        stage('docker build and save') {
             steps {
-                script {
-                    docker.withRegistry('https://ghcr.io', 'github-container-registry') {
-                        image = docker.build("ghcr.io/kevinswiber/learner-api:${GIT_COMMIT.substring(0, 7)}")
-                        image.push()
-                    }
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-container-registry',
+                    usernameVariable: 'GH_USER',
+                    passwordVariable: 'GH_TOKEN'
+                )]) {
+                    sh 'echo "$GH_TOKEN" | docker login ghcr.io -u "$GH_USER" --password-stdin'
+                }
+
+                sh "docker build ${dockerTag}"
+                sh "docker save ${dockerTag} | gzip > ${dockerSaveFile}"
+            }
+
+            post {
+                success {
+                    archiveArtifacts artifacts: "${dockerSaveFile}", fingerprint: true
                 }
             }
         }
