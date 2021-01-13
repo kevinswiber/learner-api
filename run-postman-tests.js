@@ -6,13 +6,14 @@ const app = require('./app')
 const server = app.listen(0, () => {
   const port = server.address().port;
 
-  const branchName = (process.env.BRANCH_NAME ||
+  const gitRefName = (process.env.GIT_REF_NAME ||
     execSync('git symbolic-ref --short HEAD') ||
     'main').toString().trim();
 
   const env = Object.assign({}, process.env, {
-    BRANCH_NAME: branchName,
-    JOB_NAME: `postman/learner-api/${branchName}`
+    GIT_REF_TYPE: 'branch',
+    GIT_REF_NAME: gitRefName,
+    JOB_NAME: `postman/learner-api/${gitRefName}`
   });
 
   const fetch = spawn('./ci/fetch-postman-assets.sh', { env: env, stdio: 'inherit' });
