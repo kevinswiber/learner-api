@@ -5,9 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "postman-tests": "npm run postman-test-suite && npm run postman-contract-tests",
-    "postman-test-suite": "TEST_TYPE=testsuite ./run-postman-tests.js",
-    "postman-contract-tests": "TEST_TYPE=contracttest ./run-postman-tests.js"
+    "postman-tests": "npm run postman-contract-tests && npm run postman-integration-tests",
+    "postman-contract-tests": "TEST_TYPE=contracttest ./run-postman-tests.js",
+    "postman-integration-tests": "TEST_TYPE=integrationtest ./run-postman-tests.js"
   },
   "dependencies": {
     "body-parser": "1.14.2",
