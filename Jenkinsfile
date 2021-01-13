@@ -11,7 +11,7 @@ pipeline {
         stage('build and test') {
             agent {
                 docker {
-                    image 'node:alpine'
+                    image 'kevinswiber:node-curl-jq'
                 }
             }
 
