@@ -1,6 +1,8 @@
 /* groovylint-disable CompileStatic, NestedBlockDepth */
-String dockerTag = "ghcr.io/kevinswiber/learner-api:${GIT_COMMIT.substring(0, 7)}"
-String dockerSaveFile = "${dockerTag.replace(':', '-')}"
+
+String dockerTag
+String dockerSaveFile
+
 pipeline {
     agent any
 
@@ -8,6 +10,9 @@ pipeline {
         stage('setup') {
             steps {
                 script {
+                    dockerTag = "ghcr.io/kevinswiber/learner-api:${GIT_COMMIT.substring(0, 7)}"
+                    dockerSaveFile = "${dockerTag.replace(':', '-')}"
+
                     if (env.CHANGE_ID != null) {
                         env.GIT_REF_TYPE = 'pr'
                         env.GIT_REF_NAME = "${env.CHANGE_ID}"
