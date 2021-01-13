@@ -7,14 +7,6 @@ String apiServerPort = '3000'
 pipeline {
     agent any
 
-    environment {
-        GIT_REF_TYPE = sh(returnStdout: true, script: './ci/git-ref-type.sh').trim()
-        JOB_NAME_OVERRIDE = sh(
-            returnStdout: true,
-            script: ("echo \"${JOB_NAME}" - "-deploy/${BRANCH_NAME}") + "/${BRANCH_NAME}\""
-        )
-    }
-
     options {
         preserveStashes()
     }
@@ -29,6 +21,21 @@ pipeline {
             }
 
             steps {
+                script {
+                    if (env.CHANGE_ID != null) {
+                        env.GIT_REF_TYPE = 'pr'
+                        env.GIT_REF_NAME = "${env.CHANGE_ID}"
+                    } else if (env.TAG_NAME != null) {
+                        env.GIT_REF_TYPE = 'tag'
+                        env.GIT_REF_NAME = "${env.TAG_NAME}"
+                    } else {
+                        env.GIT_REF_TYPE = 'branch'
+                        env.GIT_REF_NAME = "${env.BRANCH_NAME}"
+                    }
+
+                    env.JOB_NAME_OVERRIDE = ("${JOB_NAME}" - "-deploy/${BRANCH_NAME}") + "/${BRANCH_NAME}"
+                }
+
                 withCredentials([string(credentialsId: 'postman-api-key', variable: 'POSTMAN_API_KEY')]) {
                     withEnv(["JOB_NAME=${JOB_NAME_OVERRIDE}"]) {
                         sh '/etc/ci/fetch-postman-assets.sh'
