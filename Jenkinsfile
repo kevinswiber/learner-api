@@ -11,14 +11,15 @@ pipeline {
         stage('setup') {
             steps {
                 script {
-                    if ("${env.CHANGE_ID}" != '') {
+                    if (env.CHANGE_ID != null) {
                         env.BUILD_TRIGGER = 'pr'
                         env.VAL = "${env.CHANGE_ID}"
-                    } else if ("${env.TAG_NAME}" != '') {
+                    } else if (env.TAG_NAME != null) {
                         env.BUILD_TRIGGER = 'tag'
                         env.VAL = "${env.TAG_NAME}"
                     } else {
                         env.BUILD_TRIGGER = 'branch'
+                        env.VAL = "${env.BRANCH_NAME}"
                     }
                 }
                 echo "${env.BUILD_TRIGGER}"
