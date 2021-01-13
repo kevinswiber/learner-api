@@ -7,6 +7,10 @@ pipeline {
         }
     }
 
+    environment {
+        GIT_REF_TYPE = sh(returnStdout: true, script: './ci/git-ref-type.sh').trim()
+    }
+
     stages {
         stage('build') {
             steps {
