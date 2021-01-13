@@ -11,9 +11,9 @@ pipeline {
         stage('setup') {
             steps {
                 script {
-                    if ("${CHANGE_ID}" != '') {
+                    if (env.hasProperty('CHANGE_ID')) {
                         env.BUILD_TRIGGER = 'pr'
-                    } else if ("${TAG_NAME}" != '') {
+                    } else if (env.hasProperty('TAG_NAME')) {
                         env.BUILD_TRIGGER = 'tag'
                     } else {
                         env.BUILD_TRIGGER = 'branch'
