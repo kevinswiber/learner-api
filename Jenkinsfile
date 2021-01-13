@@ -11,7 +11,7 @@ pipeline {
         stage('build and test') {
             agent {
                 docker {
-                    image 'node:lts-buster-slim'
+                    image 'node:alpine'
                 }
             }
 
@@ -24,7 +24,9 @@ pipeline {
 
                 stage('postman tests') {
                     steps {
-                        sh 'npm run postman-tests'
+                        withCredentials([string(credentialsId: 'postman-api-key', variable: 'POSTMAN_API_KEY')]) {
+                            sh 'npm run postman-tests'
+                        }
                     }
 
                     post {
