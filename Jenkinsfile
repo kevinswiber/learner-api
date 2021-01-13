@@ -10,8 +10,9 @@ pipeline {
         stage('setup') {
             steps {
                 script {
-                    dockerTag = "ghcr.io/kevinswiber/learner-api:${GIT_COMMIT.substring(0, 7)}"
-                    dockerSaveFile = "${dockerTag.replace(':', '-')}"
+                    hash = GIT_COMMIT.substring(0, 7)
+                    dockerTag = "ghcr.io/kevinswiber/learner-api:${hash}"
+                    dockerSaveFile = "learner-api-${hash}.tar.gz"
 
                     if (env.CHANGE_ID != null) {
                         env.GIT_REF_TYPE = 'pr'
@@ -58,6 +59,8 @@ pipeline {
         }
 
         stage('docker build and save') {
+            agent any
+
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'github-container-registry',
