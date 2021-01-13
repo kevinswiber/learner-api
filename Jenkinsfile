@@ -6,6 +6,10 @@ String dockerSaveFile
 pipeline {
     agent any
 
+    options {
+        copyArtifactPermission('postman/learner-api-promote')
+    }
+
     stages {
         stage('setup') {
             steps {
