@@ -22,6 +22,9 @@ pipeline {
                     }
                 }
                 echo "${env.BUILD_TRIGGER}"
+                echo "change id: ${env.CHANGE_ID}"
+                echo "tag name: ${env.TAG_NAME}"
+                echo "branch name: ${env.BRANCH_NAME}"
                 echo "${env.VAL}"
             }
         }
