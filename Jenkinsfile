@@ -1,31 +1,37 @@
-/* groovylint-disable CompileStatic */
+/* groovylint-disable CompileStatic, NestedBlockDepth */
 
 pipeline {
-    agent {
-        docker {
-            image 'node:lts-buster-slim'
-        }
-    }
+    agent none
 
     environment {
         GIT_REF_TYPE = sh(returnStdout: true, script: './ci/git-ref-type.sh').trim()
     }
 
     stages {
-        stage('build') {
-            steps {
-                sh 'npm install'
-            }
-        }
-
-        stage('postman tests') {
-            steps {
-                sh 'npm run postman-tests'
+        stage('build and test') {
+            agent {
+                docker {
+                    image 'node:lts-buster-slim'
+                }
             }
 
-            post {
-                always {
-                    junit 'newman/*.xml'
+            stages {
+                stage('build') {
+                    steps {
+                        sh 'npm install'
+                    }
+                }
+
+                stage('postman tests') {
+                    steps {
+                        sh 'npm run postman-tests'
+                    }
+
+                    post {
+                        always {
+                            junit 'newman/*.xml'
+                        }
+                    }
                 }
             }
         }
