@@ -67,7 +67,7 @@ pipeline {
                     sh 'echo "$GH_TOKEN" | docker login ghcr.io -u "$GH_USER" --password-stdin'
                 }
 
-                sh "docker build ${dockerTag}"
+                sh "docker build -t ${dockerTag} ."
                 sh "docker save ${dockerTag} | gzip > ${dockerSaveFile}"
             }
 
