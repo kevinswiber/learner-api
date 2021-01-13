@@ -6,11 +6,10 @@ const app = require('./app')
 const server = app.listen(0, () => {
   const port = server.address().port;
 
-  let gitBranch = execSync('git symbolic-ref --short HEAD');
-  if (gitBranch) {
-    gitBranch = gitBranch.toString().trim();
-  }
-  const branchName = process.env.BRANCH_NAME || gitBranch || 'main';
+  const branchName = (process.env.BRANCH_NAME ||
+    execSync('git symbolic-ref --short HEAD') ||
+    'main').toString().trim();
+
   const env = Object.assign({}, process.env, {
     BRANCH_NAME: branchName,
     JOB_NAME: `postman/learner-api/${branchName}`
