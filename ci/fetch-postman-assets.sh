@@ -10,8 +10,8 @@ if [[ -z "$POSTMAN_API_KEY" ]]; then
     exit 1
 fi
 
-if [[ -z "$BRANCH_NAME" ]]; then
-    echo "BRANCH_NAME is required to execute this script."
+if [[ -z "$GIT_REF_NAME" ]]; then
+    echo "GIT_REF_NAME is required to execute this script.  This will be the branch name, tag name, or Pull Request number."
     exit 1
 fi
 
@@ -41,16 +41,13 @@ default_api_version_name_and_branch=$(curl -s -H "X-API-Key: $POSTMAN_API_KEY" \
     '[.versions[] | select(.name | test("(^|\\s)default:true($|\\s)")) | .name + "," + (.name | match("(?:^|\\s)branch:(\\S+)(?:$|\\s)") | .captures | map(.string)[0])][0] // empty')
 
 default_api_version_name="${default_api_version_name_and_branch%,*}"
-git_default_branch_name="${default_api_version_name_and_branch##*,}"
 
-[[ $(expr "$BRANCH_NAME" : "PR-") != 0 ]] && api_version_prefix="pr" && BRANCH_NAME=$(echo "$BRANCH_NAME" | awk '{ print substr( $0, 4 ) }') || api_version_prefix="$GIT_REF_TYPE"
-[[ "$git_default_branch_name" != "$BRANCH_NAME" ]] && api_version_name="$api_version_prefix:$BRANCH_NAME" || api_version_name="$default_api_version_name"
+api_version_name="$GIT_REF_TYPE:$GIT_REF_NAME"
 
 echo "job name: ${JOB_NAME%/*}"
 echo "provided group: $GROUP"
 echo "api id: $api_id"
-echo "default branch: $git_default_branch_name"
-echo "branch name: $BRANCH_NAME"
+echo "$GIT_REF_TYPE name: $GIT_REF_NAME"
 echo "api version name: $api_version_name"
 
 [[ -f ./postman_collection.json ]] && rm ./postman_collection.json

@@ -3,30 +3,21 @@
 pipeline {
     agent any
 
-    environment {
-        GIT_REF_TYPE = sh(returnStdout: true, script: './ci/git-ref-type.sh').trim()
-    }
-
     stages {
         stage('setup') {
             steps {
                 script {
                     if (env.CHANGE_ID != null) {
-                        env.BUILD_TRIGGER = 'pr'
-                        env.VAL = "${env.CHANGE_ID}"
+                        env.GIT_REF_TYPE = 'pr'
+                        env.GIT_REF_NAME = "${env.CHANGE_ID}"
                     } else if (env.TAG_NAME != null) {
-                        env.BUILD_TRIGGER = 'tag'
-                        env.VAL = "${env.TAG_NAME}"
+                        env.GIT_REF_TYPE = 'tag'
+                        env.GIT_REF_NAME = "${env.TAG_NAME}"
                     } else {
-                        env.BUILD_TRIGGER = 'branch'
-                        env.VAL = "${env.BRANCH_NAME}"
+                        env.GIT_REF_TYPE = 'branch'
+                        env.GIT_REF_NAME = "${env.BRANCH_NAME}"
                     }
                 }
-                echo "${env.BUILD_TRIGGER}"
-                echo "change id: ${env.CHANGE_ID}"
-                echo "tag name: ${env.TAG_NAME}"
-                echo "branch name: ${env.BRANCH_NAME}"
-                echo "${env.VAL}"
             }
         }
 
