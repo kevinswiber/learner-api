@@ -1,7 +1,7 @@
 /* groovylint-disable CompileStatic, NestedBlockDepth */
 
 pipeline {
-    agent none
+    agent any
 
     environment {
         GIT_REF_TYPE = sh(returnStdout: true, script: './ci/git-ref-type.sh').trim()
