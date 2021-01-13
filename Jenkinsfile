@@ -11,12 +11,18 @@ pipeline {
         stage('setup') {
             steps {
                 script {
-                    if (env.hasProperty('CHANGE_ID')) {
-                        env.BUILD_TRIGGER = 'pr'
-                    } else if (env.hasProperty('TAG_NAME')) {
-                        env.BUILD_TRIGGER = 'tag'
-                    } else {
-                        env.BUILD_TRIGGER = 'branch'
+                    try {
+                        if ("${env.CHANGE_ID}" != '') {
+                            env.BUILD_TRIGGER = 'pr'
+                        }
+                    } catch (MissingPropertyException _ex) {
+                        try {
+                            if ("${env.TAG_NAME}" != '') {
+                                env.BUILD_TRIGGER = 'tag'
+                            }
+                        } catch (MissingPropertyException _ex2) {
+                            env.BUILD_TRIGGER = 'branch'
+                        }
                     }
                 }
                 echo "${env.BUILD_TRIGGER}"
