@@ -8,6 +8,21 @@ pipeline {
     }
 
     stages {
+        stage('setup') {
+            steps {
+                script {
+                    if ("${CHANGE_ID}" != '') {
+                        env.BUILD_TRIGGER = 'pr'
+                    } else if ("${TAG_NAME}" != '') {
+                        env.BUILD_TRIGGER = 'tag'
+                    } else {
+                        env.BUILD_TRIGGER = 'branch'
+                    }
+                }
+                echo "${env.BUILD_TRIGGER}"
+            }
+        }
+
         stage('build and test') {
             agent {
                 docker {
