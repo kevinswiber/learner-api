@@ -31,12 +31,15 @@ const server = app.listen(0, () => {
     process.removeListener('SIGTERM', fetchSignalHandler);
 
     let args = [
-      'run', '--env-var', `url=http://localhost:${port}`,
+      'run',
       '-e', './postman_environment.json',
       '--reporters', 'cli,junit'];
 
     if (process.env.TEST_TYPE === 'contracttest') {
-      args = args.concat(['--env-var', `env-apiKey=${process.env.POSTMAN_API_KEY}`]);
+      args = args.concat(['--env-var', `env-apiKey=${process.env.POSTMAN_API_KEY}`,
+        '--env-var', `env-serverOverride=http://localhost:${port}`]);
+    } else {
+      args = args.concat(['--env-var', `url=http://localhost:${port}`]);
     }
 
     args.push('./postman_collection.json');
