@@ -14,11 +14,13 @@ pipeline {
                     try {
                         if ("${env.CHANGE_ID}" != '') {
                             env.BUILD_TRIGGER = 'pr'
+                            env.VAL = "${env.CHANGE_ID}"
                         }
                     } catch (MissingPropertyException _ex) {
                         try {
                             if ("${env.TAG_NAME}" != '') {
                                 env.BUILD_TRIGGER = 'tag'
+                                env.VAL = "${env.TAG_NAME}"
                             }
                         } catch (MissingPropertyException _ex2) {
                             env.BUILD_TRIGGER = 'branch'
@@ -26,6 +28,7 @@ pipeline {
                     }
                 }
                 echo "${env.BUILD_TRIGGER}"
+                echo "${env.VAL}"
             }
         }
 
