@@ -1,6 +1,6 @@
 {
-  "name": "rest-api",
-  "version": "0.0.1",
+  "name": "learner-api",
+  "version": "0.1.0",
   "description": "Rest API Example",
   "main": "server.js",
   "scripts": {
