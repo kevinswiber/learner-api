@@ -9,6 +9,7 @@ pipeline {
 
     environment {
         GIT_REF_TYPE = sh(returnStdout: true, script: './ci/git-ref-type.sh').trim()
+        JOB_NAME_OVERRIDE = echo(("${JOB_NAME}" - "-deploy/${BRANCH_NAME}") + "/${BRANCH_NAME}")
     }
 
     options {
@@ -26,7 +27,9 @@ pipeline {
 
             steps {
                 withCredentials([string(credentialsId: 'postman-api-key', variable: 'POSTMAN_API_KEY')]) {
-                    sh '/etc/ci/fetch-postman-assets.sh'
+                    withEnv(["JOB_NAME=${JOB_NAME_OVERRIDE}"]) {
+                        sh '/etc/ci/fetch-postman-assets.sh'
+                    }
                 }
                 stash name: "${postmanAssetsID}", includes: 'postman_collection.json,postman_environment.json'
             }
