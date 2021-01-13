@@ -11,7 +11,7 @@ pipeline {
         stage('build and test') {
             agent {
                 docker {
-                    image 'kevinswiber:node-curl-jq'
+                    image 'kevinswiber/node-curl-jq'
                 }
             }
 
