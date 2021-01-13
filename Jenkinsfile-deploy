@@ -7,11 +7,25 @@ String apiServerPort = '3000'
 pipeline {
     agent any
 
+    parameters {
+        string(name: 'PROMOTED_JOB', description: 'Job to promote')
+        string(name: 'PROMOTED_BUILD', description: 'Build number to promote')
+    }
+
     options {
         preserveStashes()
     }
 
     stages {
+        stage('Copy artifacts') {
+            steps {
+                copyArtifacts(
+                    projectName: "${params.PROMOTED_JOB}",
+                    selector: specific("{$params.PROMOTED_BUILD")
+                )
+            }
+        }
+
         stage('Setup test environment') {
             agent {
                 docker {
