@@ -66,14 +66,6 @@ pipeline {
             agent any
 
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'github-container-registry',
-                    usernameVariable: 'GH_USER',
-                    passwordVariable: 'GH_TOKEN'
-                )]) {
-                    sh 'echo "$GH_TOKEN" | docker login ghcr.io -u "$GH_USER" --password-stdin'
-                }
-
                 sh "docker build -t ${dockerTag} ."
                 sh "docker save ${dockerTag} | gzip > ${dockerSaveFile}"
             }
