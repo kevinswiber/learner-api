@@ -62,16 +62,12 @@ pipeline {
     post {
         success {
             script {
-                userIds = slackUserIdsFromCommitters()
-                userIdsString = userIds.collect { "<@$it>" }.join(' ')
-                slackSend(color: 'good', message: "<@$userIdsString> Build successful")
+                slackSend(color: 'good', message: 'Build successful')
             }
         }
         failure {
             script {
-                userIds = slackUserIdsFromCommitters()
-                userIdsString = userIds.collect { "<@$it>" }.join(' ')
-                slackSend(color: 'danger', message: "<@$userIdsString> Build failure")
+                slackSend(color: 'danger', message: 'Build failure')
             }
         }
     }
