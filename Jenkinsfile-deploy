@@ -1,15 +1,18 @@
 /* groovylint-disable CompileStatic,NestedBlockDepth */
 
-String dockerName = "${BUILD_TAG}".replaceAll('[^a-zA-Z0-9]', '-')
-String postmanAssetsID = 'postman-assets'
-String apiServerPort = '3000'
-
 pipeline {
     agent any
 
     parameters {
-        string(name: 'PROMOTED_JOB', description: 'Job to promote')
-        string(name: 'PROMOTED_BUILD', description: 'Build number to promote')
+        RESTList(
+            name: 'project',
+            description: 'postman/learner-api/',
+            restEndpoint: 'https://jenkins.zoinks.dev/job/postman/job/learner-api/api/json',
+            credentialId: 'jenkins-api-key',
+            mimeType: 'APPLICATION_JSON',
+            valueExpression: '$.jobs..name',
+        )
+        buildSelector(name: 'build')
     }
 
     options {
@@ -17,105 +20,40 @@ pipeline {
     }
 
     stages {
-        stage('Copy artifacts') {
+        stage('copy artifacts') {
             steps {
+                cleanWs()
                 copyArtifacts(
-                    projectName: "${params.PROMOTED_JOB}",
-                    selector: specific("{$params.PROMOTED_BUILD")
+                    projectName: "postman/learner-api/${params.project}",
+                    selector: buildParameter('build')
                 )
             }
         }
 
-        stage('Setup test environment') {
-            agent {
-                docker {
-                    image 'kevinswiber/curl-jq'
-                    args "-v ${WORKSPACE}/ci:/etc/ci"
-                }
-            }
-
+        stage('load, tag, and push docker image') {
             steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-container-registry',
+                    usernameVariable: 'GH_USER',
+                    passwordVariable: 'GH_TOKEN')]
+                ) {
+                    sh 'echo "$GH_TOKEN" | docker login ghcr.io -u "$GH_USER" --password-stdin'
+                }
+
                 script {
-                    if (env.CHANGE_ID != null) {
-                        env.GIT_REF_TYPE = 'pr'
-                        env.GIT_REF_NAME = "${env.CHANGE_ID}"
-                    } else if (env.TAG_NAME != null) {
-                        env.GIT_REF_TYPE = 'tag'
-                        env.GIT_REF_NAME = "${env.TAG_NAME}"
-                    } else {
-                        env.GIT_REF_TYPE = 'branch'
-                        env.GIT_REF_NAME = "${env.BRANCH_NAME}"
-                    }
-
-                    env.JOB_NAME_OVERRIDE = ("${JOB_NAME}" - "-deploy/${BRANCH_NAME}") + "/${BRANCH_NAME}"
+                    loadResult = sh(
+                        returnStdout: true,
+                        script: 'gunzip -c learner-api-*.tar.gz | docker load'
+                    ).trim()
+                    echo loadResult
+                    imageName = loadResult[14..loadResult.size() - 1]
+                    echo imageName
+                    taggedImageName = imageName[0..imageName.lastIndexOf(':')] + 'staging'
+                    echo taggedImageName
                 }
 
-                withCredentials([string(credentialsId: 'postman-api-key', variable: 'POSTMAN_API_KEY')]) {
-                    withEnv(["JOB_NAME=${JOB_NAME_OVERRIDE}"]) {
-                        sh '/etc/ci/fetch-postman-assets.sh'
-                    }
-                }
-                stash name: "${postmanAssetsID}", includes: 'postman_collection.json,postman_environment.json'
-            }
-        }
-
-        stage('Launch API Server and Run Postman Tests') {
-            agent any
-            stages {
-                stage('Launch API Server') {
-                    steps {
-                        sh "docker network create ${dockerName} || true"
-                        sh """docker run \\
-                            --rm \\
-                            -p :${apiServerPort} \\
-                            --name ${dockerName} \\
-                            --network ${dockerName} \\
-                            --network-alias api \\
-                            --detach \\
-                            -v ${WORKSPACE}:/usr/src/app \\
-                            --workdir /usr/src/app \\
-                            node:lts-buster-slim \\
-                            /bin/bash -c \"npm install && npm start\""""
-                    }
-                }
-
-                stage('Postman Tests') {
-                    options {
-                        timeout(time: 10, unit: 'MINUTES')
-                    }
-
-                    agent {
-                        docker {
-                            image 'postman/newman'
-                            args "-v ${WORKSPACE}:/etc/newman --network ${dockerName} --entrypoint=''"
-                            reuseNode true
-                        }
-                    }
-
-                    steps {
-                        unstash "${postmanAssetsID}"
-                        sh "/bin/sh -c \"while ! wget -q --spider http://api:${apiServerPort}; do sleep 5; done\""
-                        sh """newman run \\
-                            postman_collection.json \\
-                            --environment postman_environment.json \\
-                            --env-var url=http://api:${apiServerPort} \\
-                            --reporters cli,junit \\
-                            --reporter-junit-export newman/report.xml"""
-                    }
-
-                    post {
-                        always {
-                            junit 'newman/report.xml'
-                        }
-                    }
-                }
-            }
-
-            post {
-                always {
-                    sh "docker kill ${dockerName} || true"
-                    sh "docker network rm ${dockerName} || true"
-                }
+                sh "docker tag ${imageName} ${taggedImageName}"
+                sh "docker push ${taggedImageName}"
             }
         }
     }
