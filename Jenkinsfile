@@ -86,7 +86,7 @@ pipeline {
 
     post {
         success {
-            slackSend(channel: '#ci', blocks: [
+            slackSend(channel: '#ci', attachments: [ 'color': '#36a64f', blocks: [
                 [
                     'type': 'section',
                     'fields': [
@@ -110,7 +110,7 @@ pipeline {
                     'fields': [
                         [
                             'type': 'mrkdwn',
-                            'text': "*Commit:* ${GIT_COMMIT}"
+                            'text': "*Commit:* ${hash}"
                         ]
                     ]
                 ],
@@ -127,12 +127,10 @@ pipeline {
                             'text': 'Download',
                             'emoji': true
                         ],
-                        'value': 'click_me_123',
                         'url': "${currentBuild.absoluteUrl}artifact/${dockerSaveFile}",
-                        'action_id': 'button-action'
                     ]
                 ]
-            ])
+            ] ])
         }
         failure {
             slackSend(channel: '#ci', color: 'danger', message: "Build failure ${currentBuild.absoluteUrl}")
