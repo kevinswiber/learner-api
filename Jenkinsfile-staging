@@ -53,6 +53,7 @@ pipeline {
                     echo taggedImageName
                 }
 
+                sh "docker rmi ${taggedImageName} || true"
                 sh "docker tag ${imageName} ${taggedImageName}"
                 sh "docker push ${taggedImageName}"
             }
