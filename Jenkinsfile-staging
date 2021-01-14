@@ -61,10 +61,10 @@ pipeline {
 
     post {
         success {
-            slackSend(color: 'good', message: "Build successful ${absoluteUrl}")
+            slackSend(color: 'good', message: "Build successful ${currentBuild.absoluteUrl}")
         }
         failure {
-            slackSend(color: 'danger', message: "Build failure ${absoluteUrl}")
+            slackSend(color: 'danger', message: "Build failure ${currentBuild.absoluteUrl}")
         }
     }
 }
