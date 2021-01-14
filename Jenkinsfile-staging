@@ -23,7 +23,6 @@ pipeline {
     stages {
         stage('copy artifacts') {
             steps {
-                cleanWs()
                 copyArtifacts(
                     projectName: "postman/learner-api/${params.project}",
                     selector: buildParameter('build')
