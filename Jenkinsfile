@@ -77,4 +77,59 @@ pipeline {
             }
         }
     }
+
+    post {
+        success {
+            slackSend(channel: '#staging', blocks: [
+                [
+                    'type': 'section',
+                    'fields': [
+                        [
+                            'type': 'mrkdwn',
+                            'text': "*${currentBuild.currentResult}*"
+                        ]
+                    ]
+                ],
+                [
+                    'type': 'section',
+                    'fields': [
+                        [
+                            'type': 'mrkdwn',
+                            'text': "*Job:* ${JOB_NAME}"
+                        ]
+                    ]
+                ],
+                [
+                    'type': 'section',
+                    'fields': [
+                        [
+                            'type': 'mrkdwn',
+                            'text': "*Commit:* ${GIT_COMMIT}"
+                        ]
+                    ]
+                ],
+                [
+                    'type': 'section',
+                    'text': [
+                        'type': 'mrkdwn',
+                        'text': "Docker image: ${dockerTag}"
+                    ],
+                    'accessory': [
+                        'type': 'button',
+                        'text': [
+                            'type': 'plain_text',
+                            'text': 'Download',
+                            'emoji': true
+                        ],
+                        'value': 'click_me_123',
+                        'url': "${currentBuild.absoluteUrl}artifact/${dockerSaveFile}",
+                        'action_id': 'button-action'
+                    ]
+                ]
+            ])
+        }
+        failure {
+            slackSend(channel: '#staging', color: 'danger', message: "Build failure ${currentBuild.absoluteUrl}")
+        }
+    }
 }
