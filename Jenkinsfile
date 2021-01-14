@@ -1,4 +1,4 @@
-/* groovylint-disable CompileStatic, NestedBlockDepth */
+/* groovylint-disable CompileStatic, DuplicateStringLiteral, NestedBlockDepth */
 
 String dockerTag
 String dockerSaveFile
@@ -7,6 +7,12 @@ pipeline {
     agent any
 
     options {
+        buildDiscarder logRotator(
+            artifactDaysToKeepStr: '10',
+            artifactNumToKeepStr: '2',
+            daysToKeepStr: '5',
+            numToKeepStr: '5'
+        )
         copyArtifactPermission('postman/learner-api-promote')
     }
 
