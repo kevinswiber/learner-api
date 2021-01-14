@@ -11,7 +11,7 @@ pipeline {
             credentialId: 'jenkins-api-key',
             mimeType: 'APPLICATION_JSON',
             valueExpression: '$.jobs..name',
-            filter: '.+(-rc\\.([0-9]+))$'
+            filter: 'v[0-9]+\\..+'
         )
         buildSelector(name: 'build')
     }
