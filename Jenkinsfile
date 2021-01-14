@@ -80,7 +80,7 @@ pipeline {
 
     post {
         success {
-            slackSend(channel: '#staging', blocks: [
+            slackSend(channel: '#ci', blocks: [
                 [
                     'type': 'section',
                     'fields': [
@@ -129,7 +129,7 @@ pipeline {
             ])
         }
         failure {
-            slackSend(channel: '#staging', color: 'danger', message: "Build failure ${currentBuild.absoluteUrl}")
+            slackSend(channel: '#ci', color: 'danger', message: "Build failure ${currentBuild.absoluteUrl}")
         }
     }
 }
