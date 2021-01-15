@@ -93,7 +93,6 @@ pipeline {
                         [
                             'type': 'mrkdwn',
                             'text': "🎉 *${currentBuild.currentResult}* 🎉",
-                            'emoji': true
                         ]
                     ]
                 ],
@@ -125,8 +124,7 @@ pipeline {
                         'type': 'button',
                         'text': [
                             'type': 'plain_text',
-                            'text': 'Download',
-                            'emoji': true
+                            'text': 'Download'
                         ],
                         'url': "${currentBuild.absoluteUrl}artifact/${dockerSaveFile}",
                     ]
