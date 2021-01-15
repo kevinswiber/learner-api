@@ -35,7 +35,7 @@ pipeline {
 
         stage('copy artifacts') {
             when {
-                triggeredBy 'ManualTrigger'
+                triggeredBy 'UserIdCause'
             }
 
             steps {
@@ -48,7 +48,7 @@ pipeline {
 
         stage('load, tag, and push docker image') {
             when {
-                triggeredBy 'ManualTrigger'
+                triggeredBy 'UserIdCause'
             }
 
             steps {
@@ -80,7 +80,7 @@ pipeline {
 
         stage('deploy to staging') {
             when {
-                triggeredBy 'ManualTrigger'
+                triggeredBy 'UserIdCause'
             }
 
             steps {
@@ -90,7 +90,7 @@ pipeline {
 
         stage('generate files for smoke tests') {
             when {
-                triggeredBy 'ManualTrigger'
+                triggeredBy 'UserIdCause'
             }
 
             agent {
@@ -112,7 +112,7 @@ pipeline {
 
         stage('run smoke tests') {
             when {
-                triggeredBy 'ManualTrigger'
+                triggeredBy 'UserIdCause'
             }
 
             agent {
