@@ -7,7 +7,7 @@ pipeline {
         RESTList(
             name: 'project',
             description: 'postman/learner-api/',
-            restEndpoint: 'https://jenkins.zoinks.dev/job/postman/job/learner-api/api/json',
+            restEndpoint: 'https://localhost:8080/job/postman/job/learner-api/api/json',
             credentialId: 'jenkins-api-key',
             mimeType: 'APPLICATION_JSON',
             valueExpression: '$.jobs..name',
