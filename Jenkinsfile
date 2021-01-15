@@ -29,13 +29,15 @@ pipeline {
             }
 
             steps {
-                script {
-                    currentBuild.result = 'ABORTED'
-                }
-                error 'Aborting early.  Possibly just updating the Jenkinsfile?'
+                echo 'Succeeding early.  Possibly just updating the Jenkinsfile?'
             }
         }
+
         stage('copy artifacts') {
+            when {
+                triggeredBy 'ManualTrigger'
+            }
+
             steps {
                 copyArtifacts(
                     projectName: "postman/learner-api/${params.project}",
@@ -45,6 +47,10 @@ pipeline {
         }
 
         stage('load, tag, and push docker image') {
+            when {
+                triggeredBy 'ManualTrigger'
+            }
+
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'github-container-registry',
@@ -73,12 +79,20 @@ pipeline {
         }
 
         stage('deploy to staging') {
+            when {
+                triggeredBy 'ManualTrigger'
+            }
+
             steps {
                 echo 'deployed to staging'
             }
         }
 
         stage('generate files for smoke tests') {
+            when {
+                triggeredBy 'ManualTrigger'
+            }
+
             agent {
                 docker {
                     image 'kevinswiber/curl-jq'
@@ -97,6 +111,10 @@ pipeline {
         }
 
         stage('run smoke tests') {
+            when {
+                triggeredBy 'ManualTrigger'
+            }
+
             agent {
                 docker {
                     image 'postman/newman'
