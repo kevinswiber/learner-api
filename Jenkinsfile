@@ -108,7 +108,7 @@ pipeline {
             steps {
                 unstash 'postman-assets'
                 sh '''newman run \\
-                        --env-url=https://learner-api-staging.zoinks.dev \\
+                        --env-url url=https://learner-api-staging.zoinks.dev \\
                         -e ./postman_environment.json \
                         ./postman_collection.json'''
             }
