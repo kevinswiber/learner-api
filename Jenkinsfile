@@ -11,7 +11,7 @@ pipeline {
             credentialId: 'jenkins-api-key',
             mimeType: 'APPLICATION_JSON',
             valueExpression: '$.jobs..name',
-            // filter: 'v[0-9]+\\..+'
+        // filter: 'v[0-9]+\\..+'
         )
         buildSelector(name: 'build')
     }
@@ -55,6 +55,39 @@ pipeline {
                 sh "docker rmi ${taggedImageName} || true"
                 sh "docker tag ${imageName} ${taggedImageName}"
                 sh "docker push ${taggedImageName}"
+            }
+        }
+
+        stage('deploy to staging') {
+            steps {
+                echo 'deployed to staging'
+            }
+        }
+
+        stage('smoke tests') {
+            agent {
+                docker {
+                    image 'kevinswiber/curl-jq'
+                }
+            }
+
+            steps {
+                withCredentials([string(credentialsId: 'postman-api-key', variable: 'POSTMAN_API_KEY')]) {
+                    withEnv(["GIT_REF_NAME=${BRANCH_NAME}", 'TEST_TYPE=testsuite', 'GROUP=smoke']) {
+                        sh './ci/fetch-postman-assets.sh'
+                    }
+                }
+
+                sh '''newman run \\
+                        --env-url=https://learner-api-staging.zoinks.dev \\
+                        -e ./postman_environment.json \
+                        ./postman_collection.json'''
+            }
+
+            post {
+                always {
+                    junit 'newman/*.xml'
+                }
             }
         }
     }
