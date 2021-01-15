@@ -23,7 +23,7 @@ pipeline {
     stages {
         stage('verify build parameters') {
             when {
-                triggeredBy cause: 'jenkins.branch.BranchEventCause'
+                triggeredBy cause: 'BranchEventCause'
                 triggeredBy 'SCMTrigger'
             }
 
