@@ -44,7 +44,7 @@ pipeline {
                     loadResult = sh(
                         returnStdout: true,
                         script: 'gunzip -c learner-api-*.tar.gz | docker load'
-                    ).trim()
+                    ).trim().tokenize('\n')[0]
                     echo loadResult
                     imageName = loadResult[14..loadResult.size() - 1]
                     echo imageName
