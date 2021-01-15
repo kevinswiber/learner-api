@@ -86,13 +86,14 @@ pipeline {
 
     post {
         success {
-            slackSend(channel: '#ci', attachments: [ 'color': '#36a64f', blocks: [
+            slackSend(channel: '#ci', blocks: [
                 [
                     'type': 'section',
                     'fields': [
                         [
                             'type': 'mrkdwn',
-                            'text': "*${currentBuild.currentResult}*"
+                            'text': "🎉 *${currentBuild.currentResult}* 🎉",
+                            'emoji': true
                         ]
                     ]
                 ],
