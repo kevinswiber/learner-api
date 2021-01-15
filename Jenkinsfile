@@ -24,7 +24,6 @@ pipeline {
         stage('verify build parameters') {
             when {
                 triggeredBy cause: 'BranchEventCause'
-                triggeredBy 'SCMTrigger'
             }
 
             steps {
