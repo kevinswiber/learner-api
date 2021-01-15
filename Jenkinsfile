@@ -110,6 +110,24 @@ pipeline {
                     'fields': [
                         [
                             'type': 'mrkdwn',
+                            'text': "*Build:* <${currentBuild.absoluteUrl}|${BUILD_NUMBER}>"
+                        ]
+                    ]
+                ],
+                [
+                    'type': 'section',
+                    'fields': [
+                        [
+                            'type': 'mrkdwn',
+                            'text': "*Build duration:* ${currentBuild.durationString}"
+                        ]
+                    ]
+                ],
+                [
+                    'type': 'section',
+                    'fields': [
+                        [
+                            'type': 'mrkdwn',
                             'text': "*Commit:* ${hash}"
                         ]
                     ]
