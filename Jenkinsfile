@@ -64,7 +64,7 @@ pipeline {
             }
         }
 
-        stage('smoke tests') {
+        stage('generate files for smoke tests') {
             agent {
                 docker {
                     image 'kevinswiber/curl-jq'
@@ -78,6 +78,20 @@ pipeline {
                     }
                 }
 
+                stash name: 'postman-assets', includes: 'postman_*.json'
+            }
+        }
+
+        stage('run smoke tests') {
+            agent {
+                docker {
+                    image 'postman/newman'
+                    args '--entrypoint=""'
+                }
+            }
+
+            steps {
+                unstash 'postman-assets'
                 sh '''newman run \\
                         --env-url=https://learner-api-staging.zoinks.dev \\
                         -e ./postman_environment.json \
