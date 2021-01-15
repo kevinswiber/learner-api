@@ -88,7 +88,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'postman-api-key', variable: 'POSTMAN_API_KEY')]) {
                     withEnv(["GIT_REF_NAME=${BRANCH_NAME}", 'TEST_TYPE=testsuite', 'GROUP=smoke']) {
-                        sh './ci/fetch-postman-assets.sh'
+                        sh './scripts/fetch-postman-assets.sh'
                     }
                 }
 
