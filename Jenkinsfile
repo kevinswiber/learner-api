@@ -23,7 +23,10 @@ pipeline {
     stages {
         stage('verify build parameters') {
             when {
-                triggeredBy cause: 'BranchEventCause'
+                anyOf {
+                    triggeredBy cause: 'BranchEventCause'
+                    triggeredBy 'SCMTrigger'
+                }
             }
 
             steps {
