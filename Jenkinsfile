@@ -131,7 +131,7 @@ pipeline {
                         'url': "${currentBuild.absoluteUrl}artifact/${dockerSaveFile}",
                     ]
                 ]
-            ] ])
+            ])
         }
         failure {
             slackSend(channel: '#ci', color: 'danger', message: "Build failure ${currentBuild.absoluteUrl}")
