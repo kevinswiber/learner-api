@@ -2,6 +2,7 @@
 
 String dockerTag
 String dockerSaveFile
+String githubUrl = 'https://github.com/kevinswiber/learner-api'
 
 pipeline {
     agent any
@@ -128,7 +129,7 @@ pipeline {
                     'fields': [
                         [
                             'type': 'mrkdwn',
-                            'text': "*Commit:* ${hash}"
+                            'text': "*Commit:* <${githubUrl}/commit/${GIT_COMMIT}|${hash}>"
                         ]
                     ]
                 ],
