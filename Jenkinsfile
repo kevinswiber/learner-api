@@ -11,7 +11,6 @@ pipeline {
             credentialId: 'jenkins-api-key',
             mimeType: 'APPLICATION_JSON',
             valueExpression: '$.jobs..name',
-        // filter: 'v[0-9]+\\..+'
         )
         buildSelector(name: 'build')
     }
@@ -108,6 +107,7 @@ pipeline {
             steps {
                 unstash 'postman-assets'
                 sh '''newman run \\
+                        --reporters cli,junit \\
                         --env-var url=https://learner-api-staging.zoinks.dev \\
                         -e ./postman_environment.json \
                         ./postman_collection.json'''
