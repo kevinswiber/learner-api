@@ -21,6 +21,18 @@ pipeline {
     }
 
     stages {
+        stage('verify build parameters') {
+            when {
+                expression { params.project == null || params.build == null }
+            }
+
+            steps {
+                script {
+                    currentBuild.result = 'ABORTED'
+                }
+                error 'No build params provided.  Possibly just updating the Jenkinsfile?'
+            }
+        }
         stage('copy artifacts') {
             steps {
                 copyArtifacts(
