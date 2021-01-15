@@ -21,7 +21,7 @@ pipeline {
     }
 
     stages {
-        stage('verify build parameters') {
+        stage('verify build trigger') {
             when {
                 anyOf {
                     triggeredBy cause: 'BranchEventCause'
