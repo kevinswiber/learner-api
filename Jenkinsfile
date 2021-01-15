@@ -21,13 +21,9 @@ pipeline {
     }
 
     stages {
-        stage('build cause') {
-            steps {
-                echo "${currentBuild.buildCauses}"
-            }
-        }
         stage('verify build parameters') {
             when {
+                triggeredBy cause: 'jenkins.branch.BranchEventCause'
                 triggeredBy 'SCMTrigger'
             }
 
