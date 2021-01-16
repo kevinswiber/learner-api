@@ -45,7 +45,7 @@ pipeline {
             steps {
                 script {
                     jobName = "postman/learner-api/${params.project}"
-                    jobNumber = buildParameter('build')
+                    jobNumber = (hudson.plugins.copyartifact.ParameterizedBuildSelector) buildParameter('build')
                     echo "${jobNumber}"
                     echo "${jobNumber.getId()}"
                     echo "${jobNumber.getValue()}"
