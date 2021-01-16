@@ -47,7 +47,7 @@ pipeline {
                     jobName = "postman/learner-api/${params.project}"
                     jobNumber = buildParameter('build')
                     echo "${jobNumber}"
-                    echo "${jobNumber.getInterpolatedStrings()}"
+                    echo "${params.build}"
                 }
                 copyArtifacts(
                     projectName: "${jobName}",
