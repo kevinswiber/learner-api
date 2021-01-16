@@ -43,8 +43,16 @@ pipeline {
             }
 
             steps {
+                script {
+                    jobName = "postman/learner-api/${params.project}"
+                    jobNumber = buildParameter('build')
+                    echo "${jobNumber}"
+                    echo "${jobNumber.getId()}"
+                    echo "${jobNumber.getValue()}"
+                    echo "${jobNumber.getDetails()}"
+                }
                 copyArtifacts(
-                    projectName: "postman/learner-api/${params.project}",
+                    projectName: "${jobName}",
                     selector: buildParameter('build')
                 )
             }
