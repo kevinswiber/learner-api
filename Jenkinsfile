@@ -1,5 +1,6 @@
 /* groovylint-disable CompileStatic,NestedBlockDepth */
 
+String buildType = 'Build deployment'
 pipeline {
     agent any
 
@@ -29,6 +30,9 @@ pipeline {
             }
 
             steps {
+                script {
+                    buildType = 'Pipeline build'
+                }
                 echo 'Succeeding early.  Possibly just updating the Jenkinsfile?'
             }
         }
@@ -141,10 +145,10 @@ pipeline {
 
     post {
         success {
-            slackSend(channel: '#staging', color: 'good', message: "Build successful ${currentBuild.absoluteUrl}")
+            slackSend(channel: '#staging', color: 'good', message: "${buildType} successful ${currentBuild.absoluteUrl}")
         }
         failure {
-            slackSend(channel: '#staging', color: 'danger', message: "Build failure ${currentBuild.absoluteUrl}")
+            slackSend(channel: '#staging', color: 'danger', message: "${buildType} failure ${currentBuild.absoluteUrl}")
         }
     }
 }
