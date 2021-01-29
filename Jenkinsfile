@@ -5,7 +5,21 @@ String dockerSaveFile
 String githubUrl = 'https://github.com/kevinswiber/learner-api'
 
 pipeline {
-    agent any
+    agent {
+        kubernetes {
+            yaml '''
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: node-curl-jq
+      image: kevinswiber/node-curl-jq
+      command:
+        - cat
+      tty: true
+'''
+        }
+    }
 
     options {
         buildDiscarder logRotator(
@@ -14,7 +28,6 @@ pipeline {
             daysToKeepStr: '5',
             numToKeepStr: '5'
         )
-        copyArtifactPermission('postman/learner-api-promote')
     }
 
     stages {
@@ -39,39 +52,31 @@ pipeline {
             }
         }
 
-        stage('npm install and test') {
-            agent {
-                docker {
-                    image 'kevinswiber/node-curl-jq'
+        stage('build') {
+            steps {
+                container('node-curl-jq') {
+                    sh 'npm install'
+                }
+            }
+        }
+
+        stage('postman tests') {
+            steps {
+                container('node-curl-jq') {
+                    withCredentials([string(credentialsId: 'postman-api-key', variable: 'POSTMAN_API_KEY')]) {
+                        sh 'npm run postman-tests'
+                    }
                 }
             }
 
-            stages {
-                stage('build') {
-                    steps {
-                        sh 'npm install'
-                    }
-                }
-
-                stage('postman tests') {
-                    steps {
-                        withCredentials([string(credentialsId: 'postman-api-key', variable: 'POSTMAN_API_KEY')]) {
-                            sh 'npm run postman-tests'
-                        }
-                    }
-
-                    post {
-                        always {
-                            junit 'newman/*.xml'
-                        }
-                    }
+            post {
+                always {
+                    junit 'newman/*.xml'
                 }
             }
         }
 
         stage('docker build and save') {
-            agent any
-
             steps {
                 sh "docker build -t ${dockerTag} ."
                 sh "docker save ${dockerTag} | gzip > ${dockerSaveFile}"
