@@ -63,7 +63,7 @@ spec:
         stage('postman tests') {
             steps {
                 container('node-curl-jq') {
-                    withCredentials([string(credentialsId: 'postman-api-key', variable: 'POSTMAN_API_KEY')]) {
+                    withCredentials([string(credentialsId: 'learner-api-postman-api-key', variable: 'POSTMAN_API_KEY')]) {
                         sh 'npm run postman-tests'
                     }
                 }
