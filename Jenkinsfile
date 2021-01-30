@@ -85,8 +85,8 @@ spec:
                             -c `pwd` \
                             --cache=true
                             --destination=${imageTag}
-                            --image-name-tag-with-digest=./image-name-tag-with-digest"""
-                    archive './image-name-tag-with-digest'
+                            --image-name-with-digest=./image-name-with-digest"""
+                    archive './image-name-with-digest'
                 }
             }
         }
