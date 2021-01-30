@@ -20,7 +20,9 @@ spec:
     - name: kaniko
       image: gcr.io/kaniko-project/executor:debug
       command:
-        - cat
+        - sleep
+      args:
+        - "999999"
       volumeMounts:
         - name: docker-config
           mountPath: /kaniko/.docker/
