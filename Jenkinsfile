@@ -35,12 +35,7 @@ spec:
     }
 
     options {
-        buildDiscarder logRotator(
-            artifactDaysToKeepStr: '10',
-            artifactNumToKeepStr: '2',
-            daysToKeepStr: '5',
-            numToKeepStr: '5'
-        )
+        preserveStashes()
     }
 
     stages {
@@ -48,6 +43,7 @@ spec:
             steps {
                 container('node-curl-jq') {
                     sh 'npm install'
+                    stash name: 'dependencies', includes: 'node_modules'
                 }
             }
         }
@@ -68,6 +64,8 @@ spec:
                 }
 
                 container('node-curl-jq') {
+                    unstash 'dependencies'
+
                     withCredentials(
                         [string(credentialsId: 'learner-api-postman-api-key', variable: 'POSTMAN_API_KEY')]
                     ) {
@@ -103,56 +101,45 @@ spec:
             slackSend(channel: '#ci', blocks: [
                 [
                     'type': 'section',
-                    'fields': [
-                        [
-                            'type': 'mrkdwn',
-                            'text': "🎉 *${currentBuild.currentResult}* 🎉",
-                        ]
+                    'text': [
+                        'type': 'mrkdwn',
+                        'text': "🎉 *${currentBuild.currentResult}* 🎉",
                     ]
                 ],
                 [
                     'type': 'section',
-                    'fields': [
-                        [
-                            'type': 'mrkdwn',
-                            'text': "*Job:* ${JOB_NAME}"
-                        ]
+                    'text': [
+                        'type': 'mrkdwn',
+                        'text': "*Job:* ${JOB_NAME}"
                     ]
                 ],
                 [
                     'type': 'section',
-                    'fields': [
-                        [
-                            'type': 'mrkdwn',
-                            'text': "*Build:* <${currentBuild.absoluteUrl}|${BUILD_NUMBER}>"
-                        ]
+                    'text': [
+                        'type': 'mrkdwn',
+                        'text': "*Build:* <${currentBuild.absoluteUrl}|${BUILD_NUMBER}>"
                     ]
                 ],
                 [
                     'type': 'section',
-                    'fields': [
-                        [
-                            'type': 'mrkdwn',
-                            'text': "*Build duration:* ${currentBuild.durationString}"
-                        ]
+                    'text': [
+                        'type': 'mrkdwn',
+                        'text': "*Build duration:* ${currentBuild.durationString}"
                     ]
                 ],
                 [
                     'type': 'section',
-                    'fields': [
-                        [
-                            'type': 'mrkdwn',
-                            'text': "*Commit:* <${githubUrl}/commit/${GIT_COMMIT}|${env.GIT_COMMIT[0..6]}>"
-                        ]
+                    'text': [
+                        'type': 'mrkdwn',
+                        'text': "*Commit:* <${githubUrl}/commit/${GIT_COMMIT}|${env.GIT_COMMIT[0..6]}>"
                     ]
                 ],
                 [
                     'type': 'section',
-                    'fields': [
-                        [
-                            'type': 'mrkdwn',
-                            'text': "*Image:* ${repository}:${env.GIT_COMMIT[0..6]}"
-                        ]
+                    'text': [
+                        'type': 'mrkdwn',
+                        'text': "*Image:* ${repository}:${env.GIT_COMMIT[0..6]}",
+                        'verbatim': true
                     ]
                 ]
             ])
