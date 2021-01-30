@@ -83,7 +83,7 @@ spec:
                 container('kaniko') {
                     sh """/kaniko/executor \
                             -c `pwd` \
-                            --cache=true
+                            --cache=true \
                             --destination=${imageTag} \
                             --image-name-with-digest=./image-name-with-digest"""
                     archive './image-name-with-digest'
