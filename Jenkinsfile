@@ -20,15 +20,15 @@ spec:
     - name: kaniko
       image: gcr.io/kaniko-project/executor:debug
       command:
-          - cat
+        - cat
       volumeMounts:
-      - name: docker-config
-      mountPath: /kaniko/.docker/
-    restartPolicy: Never
+        - name: docker-config
+          mountPath: /kaniko/.docker/
+      restartPolicy: Never
   volumes:
     - name: docker-config
       configMap:
-      name: docker-config
+        name: docker-config
 '''
         }
     }
