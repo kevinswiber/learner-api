@@ -1,6 +1,6 @@
 /* groovylint-disable CompileStatic, DuplicateStringLiteral, NestedBlockDepth */
 
-String dockerTag
+String imageTag
 String dockerSaveFile
 String githubUrl = 'https://github.com/kevinswiber/learner-api'
 
@@ -17,6 +17,18 @@ spec:
       command:
         - cat
       tty: true
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:debug
+      command:
+          - cat
+      volumeMounts:
+      - name: docker-config
+      mountPath: /kaniko/.docker/
+    restartPolicy: Never
+  volumes:
+    - name: docker-config
+      configMap:
+      name: docker-config
 '''
         }
     }
@@ -35,7 +47,7 @@ spec:
             steps {
                 script {
                     hash = GIT_COMMIT.substring(0, 7)
-                    dockerTag = "ghcr.io/kevinswiber/learner-api:${hash}"
+                    imageTag = "780401591112.dkr.ecr.us-east-1.amazonaws.com/learner-api:${hash}"
                     dockerSaveFile = "learner-api-${hash}.tar.gz"
 
                     if (env.CHANGE_ID != null) {
@@ -63,7 +75,9 @@ spec:
         stage('postman tests') {
             steps {
                 container('node-curl-jq') {
-                    withCredentials([string(credentialsId: 'learner-api-postman-api-key', variable: 'POSTMAN_API_KEY')]) {
+                    withCredentials(
+                        [string(credentialsId: 'learner-api-postman-api-key', variable: 'POSTMAN_API_KEY')]
+                    ) {
                         sh 'npm run postman-tests'
                     }
                 }
@@ -78,13 +92,8 @@ spec:
 
         stage('docker build and save') {
             steps {
-                sh "docker build -t ${dockerTag} ."
-                sh "docker save ${dockerTag} | gzip > ${dockerSaveFile}"
-            }
-
-            post {
-                success {
-                    archiveArtifacts artifacts: "${dockerSaveFile}", fingerprint: true
+                container('kaniko') {
+                    sh "/kaniko/executor -c `pwd` --cache=true --destination=${imageTag}"
                 }
             }
         }
@@ -142,7 +151,7 @@ spec:
                     'type': 'section',
                     'text': [
                         'type': 'mrkdwn',
-                        'text': "Docker image: ${dockerTag}"
+                        'text': "Docker image: ${imageTag}"
                     ],
                     'accessory': [
                         'type': 'button',
