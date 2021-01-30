@@ -81,7 +81,12 @@ spec:
                 }
 
                 container('kaniko') {
-                    sh "/kaniko/executor -c `pwd` --cache=true --destination=${imageTag}"
+                    sh """/kaniko/executor \
+                            -c `pwd` \
+                            --cache=true
+                            --destination=${imageTag}
+                            --image-name-tag-with-digest=./image-name-tag-with-digest"""
+                    archive './image-name-tag-with-digest'
                 }
             }
         }
