@@ -44,11 +44,6 @@ spec:
     }
 
     stages {
-        stage('setup') {
-            steps {
-            }
-        }
-
         stage('build') {
             steps {
                 container('node-curl-jq') {
