@@ -1,6 +1,7 @@
 /* groovylint-disable CompileStatic, DuplicateStringLiteral, NestedBlockDepth */
 
 String githubUrl = 'https://github.com/kevinswiber/learner-api'
+String repository = '780401591112.dkr.ecr.us-east-1.amazonaws.com/learner-api'
 
 pipeline {
     agent {
@@ -45,18 +46,6 @@ spec:
     stages {
         stage('setup') {
             steps {
-                script {
-                    if (env.CHANGE_ID != null) {
-                        env.GIT_REF_TYPE = 'pr'
-                        env.GIT_REF_NAME = "${env.CHANGE_ID}"
-                    } else if (env.TAG_NAME != null) {
-                        env.GIT_REF_TYPE = 'tag'
-                        env.GIT_REF_NAME = "${env.TAG_NAME}"
-                    } else {
-                        env.GIT_REF_TYPE = 'branch'
-                        env.GIT_REF_NAME = "${env.BRANCH_NAME}"
-                    }
-                }
             }
         }
 
@@ -70,11 +59,26 @@ spec:
 
         stage('postman tests') {
             steps {
+                script {
+                    if (env.CHANGE_ID != null) {
+                        gitRefType = 'pr'
+                        gitRefName = "${env.CHANGE_ID}"
+                    } else if (env.TAG_NAME != null) {
+                        gitRefType = 'tag'
+                        gitRefName = "${env.TAG_NAME}"
+                    } else {
+                        gitRefType = 'branch'
+                        gitRefName = "${env.BRANCH_NAME}"
+                    }
+                }
+
                 container('node-curl-jq') {
                     withCredentials(
                         [string(credentialsId: 'learner-api-postman-api-key', variable: 'POSTMAN_API_KEY')]
                     ) {
-                        sh 'npm run postman-tests'
+                        withEnv(["GIT_REF_TYPE=${gitRefType}", "GIT_REF_NAME=${gitRefName}"]) {
+                            sh 'npm run postman-tests'
+                        }
                     }
                 }
             }
@@ -89,8 +93,7 @@ spec:
         stage('docker build and push') {
             steps {
                 script {
-                    hash = GIT_COMMIT.substring(0, 7)
-                    imageTag = "780401591112.dkr.ecr.us-east-1.amazonaws.com/learner-api:${hash}"
+                    imageTag = "${repository}:${env.GIT_COMMIT[0..6]}"
                 }
 
                 container('kaniko') {
@@ -144,7 +147,16 @@ spec:
                     'fields': [
                         [
                             'type': 'mrkdwn',
-                            'text': "*Commit:* <${githubUrl}/commit/${GIT_COMMIT}|${env.GIT_COMMIT[0..7]}>"
+                            'text': "*Commit:* <${githubUrl}/commit/${GIT_COMMIT}|${env.GIT_COMMIT[0..6]}>"
+                        ]
+                    ]
+                ],
+                [
+                    'type': 'section',
+                    'fields': [
+                        [
+                            'type': 'mrkdwn',
+                            'text': "*Image:* ${repository}:${env.GIT_COMMIT[0..6]}"
                         ]
                     ]
                 ]
