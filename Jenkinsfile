@@ -84,7 +84,7 @@ spec:
                     sh """/kaniko/executor \
                             -c `pwd` \
                             --cache=true
-                            --destination=${imageTag}
+                            --destination=${imageTag} \
                             --image-name-with-digest=./image-name-with-digest"""
                     archive './image-name-with-digest'
                 }
