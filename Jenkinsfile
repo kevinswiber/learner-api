@@ -1,7 +1,5 @@
 /* groovylint-disable CompileStatic, DuplicateStringLiteral, NestedBlockDepth */
 
-String imageTag
-String dockerSaveFile
 String githubUrl = 'https://github.com/kevinswiber/learner-api'
 
 pipeline {
@@ -48,10 +46,6 @@ spec:
         stage('setup') {
             steps {
                 script {
-                    hash = GIT_COMMIT.substring(0, 7)
-                    imageTag = "780401591112.dkr.ecr.us-east-1.amazonaws.com/learner-api:${hash}"
-                    dockerSaveFile = "learner-api-${hash}.tar.gz"
-
                     if (env.CHANGE_ID != null) {
                         env.GIT_REF_TYPE = 'pr'
                         env.GIT_REF_NAME = "${env.CHANGE_ID}"
@@ -92,8 +86,13 @@ spec:
             }
         }
 
-        stage('docker build and save') {
+        stage('docker build and push') {
             steps {
+                script {
+                    hash = GIT_COMMIT.substring(0, 7)
+                    imageTag = "780401591112.dkr.ecr.us-east-1.amazonaws.com/learner-api:${hash}"
+                }
+
                 container('kaniko') {
                     sh "/kaniko/executor -c `pwd` --cache=true --destination=${imageTag}"
                 }
@@ -145,23 +144,8 @@ spec:
                     'fields': [
                         [
                             'type': 'mrkdwn',
-                            'text': "*Commit:* <${githubUrl}/commit/${GIT_COMMIT}|${hash}>"
+                            'text': "*Commit:* <${githubUrl}/commit/${GIT_COMMIT}|${env.GIT_COMMIT[0..7]}>"
                         ]
-                    ]
-                ],
-                [
-                    'type': 'section',
-                    'text': [
-                        'type': 'mrkdwn',
-                        'text': "Docker image: ${imageTag}"
-                    ],
-                    'accessory': [
-                        'type': 'button',
-                        'text': [
-                            'type': 'plain_text',
-                            'text': 'Download'
-                        ],
-                        'url': "${currentBuild.absoluteUrl}artifact/${dockerSaveFile}",
                     ]
                 ]
             ])
