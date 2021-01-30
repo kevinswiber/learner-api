@@ -43,7 +43,7 @@ spec:
             steps {
                 container('node-curl-jq') {
                     sh 'npm install'
-                    stash name: 'dependencies', includes: 'node_modules'
+                    stash name: 'dependencies', includes: 'node_modules/**'
                 }
             }
         }
