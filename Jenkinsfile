@@ -86,7 +86,7 @@ spec:
                             --cache=true \
                             --destination=${imageTag} \
                             --image-name-with-digest-file=image-name-with-digest"""
-                    archiveArtifacts "${JENKINS_AGENT_WORKDIR}/image-name-with-digest"
+                    archiveArtifacts 'image-name-with-digest'
                 }
             }
         }
