@@ -39,33 +39,22 @@ spec:
     }
 
     stages {
-        stage('build') {
+        stage('build & test') {
             steps {
                 container('node-curl-jq') {
                     sh 'npm install'
-                    stash name: 'dependencies', includes: 'node_modules/**'
-                }
-            }
-        }
 
-        stage('postman tests') {
-            steps {
-                script {
-                    if (env.CHANGE_ID != null) {
-                        gitRefType = 'pr'
-                        gitRefName = "${env.CHANGE_ID}"
-                    } else if (env.TAG_NAME != null) {
-                        gitRefType = 'tag'
-                        gitRefName = "${env.TAG_NAME}"
-                    } else {
-                        gitRefType = 'branch'
-                        gitRefName = "${env.BRANCH_NAME}"
-                    }
-                }
-
-                container('node-curl-jq') {
-                    dir("${JENKINS_AGENT_WORKDIR}") {
-                        unstash 'dependencies'
+                    script {
+                        if (env.CHANGE_ID != null) {
+                            gitRefType = 'pr'
+                            gitRefName = "${env.CHANGE_ID}"
+                        } else if (env.TAG_NAME != null) {
+                            gitRefType = 'tag'
+                            gitRefName = "${env.TAG_NAME}"
+                        } else {
+                            gitRefType = 'branch'
+                            gitRefName = "${env.BRANCH_NAME}"
+                        }
                     }
 
                     withCredentials(
