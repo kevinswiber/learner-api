@@ -94,35 +94,12 @@ spec:
                     'type': 'section',
                     'text': [
                         'type': 'mrkdwn',
-                        'text': "🎉 *${currentBuild.currentResult}* 🎉",
-                    ]
-                ],
-                [
-                    'type': 'section',
-                    'text': [
-                        'type': 'mrkdwn',
-                        'text': "*Job:* ${JOB_NAME}"
-                    ]
-                ],
-                [
-                    'type': 'section',
-                    'text': [
-                        'type': 'mrkdwn',
-                        'text': "*Build:* <${currentBuild.absoluteUrl}|${BUILD_NUMBER}>"
-                    ]
-                ],
-                [
-                    'type': 'section',
-                    'text': [
-                        'type': 'mrkdwn',
-                        'text': "*Build duration:* ${currentBuild.durationString}"
-                    ]
-                ],
-                [
-                    'type': 'section',
-                    'text': [
-                        'type': 'mrkdwn',
-                        'text': "*Commit:* <${githubUrl}/commit/${GIT_COMMIT}|${env.GIT_COMMIT[0..6]}>"
+                        'text': """🎉 *${currentBuild.currentResult}* 🎉"
+*Job:* ${JOB_NAME}
+*Build:* <${currentBuild.absoluteUrl}|${BUILD_NUMBER}>
+*Build duration:* ${currentBuild.durationString}
+*Commit:* <${githubUrl}/commit/${GIT_COMMIT}|${env.GIT_COMMIT[0..6]}>
+"""
                     ]
                 ],
                 [
