@@ -94,26 +94,32 @@ spec:
                     'type': 'section',
                     'text': [
                         'type': 'mrkdwn',
-                        'text': """🎉 *${currentBuild.currentResult}* 🎉"
+                        'text': """🎉 *Success!* 🎉
+*Job:* ${JOB_NAME}
+*Build:* <${currentBuild.absoluteUrl}|${BUILD_NUMBER}>
+*Build duration:* ${currentBuild.durationString}
+*Commit:* <${githubUrl}/commit/${GIT_COMMIT}|${env.GIT_COMMIT[0..6]}>
+*Image:* ${repository}:${env.GIT_COMMIT[0..6]}
+"""
+                    ]
+                ]
+            ])
+        }
+        failure {
+            slackSend(channel: '#ci', blocks: [
+                [
+                    'type': 'section',
+                    'text': [
+                        'type': 'mrkdwn',
+                        'text': """😵 *Failure* 😵
 *Job:* ${JOB_NAME}
 *Build:* <${currentBuild.absoluteUrl}|${BUILD_NUMBER}>
 *Build duration:* ${currentBuild.durationString}
 *Commit:* <${githubUrl}/commit/${GIT_COMMIT}|${env.GIT_COMMIT[0..6]}>
 """
                     ]
-                ],
-                [
-                    'type': 'section',
-                    'text': [
-                        'type': 'mrkdwn',
-                        'text': "*Image:* ${repository}:${env.GIT_COMMIT[0..6]}",
-                        'verbatim': true
-                    ]
                 ]
             ])
-        }
-        failure {
-            slackSend(channel: '#ci', color: 'danger', message: "Build failure ${currentBuild.absoluteUrl}")
         }
     }
 }
