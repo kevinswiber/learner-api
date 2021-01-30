@@ -64,7 +64,9 @@ spec:
                 }
 
                 container('node-curl-jq') {
-                    unstash 'dependencies'
+                    dir("${JENKINS_AGENT_WORKDIR}") {
+                        unstash 'dependencies'
+                    }
 
                     withCredentials(
                         [string(credentialsId: 'learner-api-postman-api-key', variable: 'POSTMAN_API_KEY')]
