@@ -28,7 +28,6 @@ echo 'saved manifest.json'
 aws ecr put-image \
   --repository-name=$1 \
   --image-tag=$2 \
-  --image-digest=$digest \
   --image-manifest=file://manifest.json
 
 echo "successfully pushed $repository:$tag"
