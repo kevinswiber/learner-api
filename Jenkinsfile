@@ -31,7 +31,7 @@ spec:
     parameters {
         RESTList(
             name: 'project',
-            description: 'galaxy-pipelines/learner-api/',
+            description: '/galaxy-pipelines/learner-api/${project}',
             restEndpoint: 'http://localhost:8080/job/galaxy-pipelines/job/learner-api/api/json',
             credentialId: 'jenkins-api-key',
             mimeType: 'APPLICATION_JSON',
@@ -68,7 +68,7 @@ spec:
 
             steps {
                 script {
-                    jobName = "../${params.project}"
+                    jobName = "/galaxy-pipelines/learner-api/${params.project}"
                     jobNumber = buildParameter('build')
                     echo "${jobNumber}"
                     echo "${params.build}"
