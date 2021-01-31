@@ -35,7 +35,7 @@ spec:
     }
 
     options {
-        copyArtifactPermission('../deploy-staging')
+        copyArtifactPermission('/galaxy-pipelines/learner-api/deploy-staging')
         preserveStashes()
     }
 
