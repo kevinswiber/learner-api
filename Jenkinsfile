@@ -32,7 +32,7 @@ spec:
         RESTList(
             name: 'project',
             description: 'galaxy-pipelines/learner-api/',
-            restEndpoint: 'http://localhost:8080/job/galaxy-pipelines/job/learner-api/api/json',
+            restEndpoint: "${JENKINS_URL}/job/galaxy-pipelines/job/learner-api/api/json",
             credentialId: 'jenkins-api-key',
             mimeType: 'APPLICATION_JSON',
             valueExpression: '$.jobs..name',
