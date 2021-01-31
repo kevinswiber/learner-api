@@ -1,4 +1,4 @@
-/* groovylint-disable CompileStatic,NestedBlockDepth */
+/* groovylint-disable CompileStatic, DuplicateStringLiteral, NestedBlockDepth */
 
 String buildType = 'Build deployment'
 pipeline {
@@ -31,11 +31,13 @@ spec:
     parameters {
         RESTList(
             name: 'project',
+            /* groovylint-disable-next-line GStringExpressionWithinString */
             description: '/galaxy-pipelines/learner-api/${project}',
             restEndpoint: 'http://localhost:8080/job/galaxy-pipelines/job/learner-api/api/json',
             credentialId: 'jenkins-api-key',
             mimeType: 'APPLICATION_JSON',
             valueExpression: '$.jobs..name',
+            filter: '^(?!deploy-).*'
         )
         buildSelector(name: 'build')
     }
@@ -45,7 +47,7 @@ spec:
     }
 
     stages {
-        stage('verify build trigger') {
+        stage('pipeline build or deployment?') {
             when {
                 anyOf {
                     triggeredBy cause: 'BranchEventCause'
@@ -61,34 +63,18 @@ spec:
             }
         }
 
-        stage('copy artifacts') {
+        stage('tag and push docker image') {
             when {
                 triggeredBy 'UserIdCause'
             }
 
             steps {
-                script {
-                    jobName = "/galaxy-pipelines/learner-api/${params.project}"
-                    jobNumber = buildParameter('build')
-                    echo "${jobNumber}"
-                    echo "${params.build}"
-                }
-
                 copyArtifacts(
-                    projectName: "${jobName}",
+                    projectName: "/galaxy-pipelines/learner-api/${params.project}",
                     selector: buildParameter('build')
                 )
 
                 stash name: 'image-data', includes: 'image-name-with-digest'
-            }
-        }
-
-        stage('load, tag, and push docker image') {
-            when {
-                triggeredBy 'UserIdCause'
-            }
-
-            steps {
                 container('aws-cli') {
                     unstash 'image-data'
                     sh './scripts/tag-and-push-image.sh learner-api staging'
@@ -106,14 +92,16 @@ spec:
             }
         }
 
-        stage('generate files for smoke tests') {
+        stage('run smoke tests') {
             when {
                 triggeredBy 'UserIdCause'
             }
 
             steps {
                 container('node-curl-jq') {
-                    withCredentials([string(credentialsId: 'learner-api-postman-api-key', variable: 'POSTMAN_API_KEY')]) {
+                    withCredentials(
+                        [string(credentialsId: 'learner-api-postman-api-key', variable: 'POSTMAN_API_KEY')]
+                    ) {
                         withEnv(["GIT_REF_NAME=${BRANCH_NAME}", 'TEST_TYPE=testsuite', 'GROUP=smoke']) {
                             sh './scripts/fetch-postman-assets.sh'
                         }
@@ -121,15 +109,7 @@ spec:
 
                     stash name: 'postman-assets', includes: 'postman_*.json'
                 }
-            }
-        }
 
-        stage('run smoke tests') {
-            when {
-                triggeredBy 'UserIdCause'
-            }
-
-            steps {
                 container('newman') {
                     dir("${JENKINS_AGENT_WORKDIR}") {
                         unstash 'postman-assets'
@@ -153,10 +133,18 @@ spec:
 
     post {
         success {
-            slackSend(channel: '#staging', color: 'good', message: "${buildType} successful ${currentBuild.absoluteUrl}")
+            slackSend(
+                channel: '#staging',
+                color: 'good',
+                message: "${buildType} successful ${currentBuild.absoluteUrl}"
+            )
         }
         failure {
-            slackSend(channel: '#staging', color: 'danger', message: "${buildType} failure ${currentBuild.absoluteUrl}")
+            slackSend(
+                channel: '#staging',
+                color: 'danger',
+                message: "${buildType} failure ${currentBuild.absoluteUrl}"
+            )
         }
     }
 }
