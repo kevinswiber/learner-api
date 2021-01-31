@@ -68,7 +68,7 @@ spec:
 
             steps {
                 script {
-                    jobName = "galaxy-pipelines/learner-api/${params.project}"
+                    jobName = "learner-api/${params.project}"
                     jobNumber = buildParameter('build')
                     echo "${jobNumber}"
                     echo "${params.build}"
