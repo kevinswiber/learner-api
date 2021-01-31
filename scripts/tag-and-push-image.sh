@@ -20,7 +20,7 @@ echo "fetching image with digest: $digest"
 aws ecr batch-get-image \
   --repository-name=$1 \
   --image-ids=imageDigest=$digest \
-  --query="images[0].imageManifest" 
+  --query="images[0].imageManifest" \
   --output=text > manifest.json
 
 echo 'saved manifest.json'
