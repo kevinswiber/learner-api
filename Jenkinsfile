@@ -21,8 +21,7 @@ spec:
       tty: true
     - name: newman
       image: postman/newman
-      command: []
-      args:
+      command:
         - cat
       tty: true
 '''
