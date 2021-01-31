@@ -1,0 +1,4 @@
+node_modules
+newman
+manifest.json
+image-name-with-digest

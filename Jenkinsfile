@@ -2,13 +2,38 @@
 
 String buildType = 'Build deployment'
 pipeline {
-    agent any
+    agent {
+        kubernetes {
+            yaml '''
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: node-curl-jq
+      image: kevinswiber/node-curl-jq
+      command:
+        - cat
+      tty: true
+    - name: aws-cli
+      image: amazon/aws-cli:2.1.22
+      command:
+        - cat
+      tty: true
+    - name: newman
+      image: postman/newman
+      command: []
+      args:
+        - cat
+      tty: true
+'''
+        }
+    }
 
     parameters {
         RESTList(
             name: 'project',
-            description: 'postman/learner-api/',
-            restEndpoint: 'http://localhost:8080/job/postman/job/learner-api/api/json',
+            description: 'galaxy-pipelines/learner-api/',
+            restEndpoint: 'http://localhost:8080/job/galaxy-pipelines/job/learner-api/api/json',
             credentialId: 'jenkins-api-key',
             mimeType: 'APPLICATION_JSON',
             valueExpression: '$.jobs..name',
@@ -44,15 +69,18 @@ pipeline {
 
             steps {
                 script {
-                    jobName = "postman/learner-api/${params.project}"
+                    jobName = "galaxy-pipelines/learner-api/${params.project}"
                     jobNumber = buildParameter('build')
                     echo "${jobNumber}"
                     echo "${params.build}"
                 }
+
                 copyArtifacts(
                     projectName: "${jobName}",
                     selector: buildParameter('build')
                 )
+
+                stash name: 'image-data', includes: 'image-name-with-digest'
             }
         }
 
@@ -62,30 +90,11 @@ pipeline {
             }
 
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'github-container-registry',
-                    usernameVariable: 'GH_USER',
-                    passwordVariable: 'GH_TOKEN')]
-                ) {
-                    sh 'echo "$GH_TOKEN" | docker login ghcr.io -u "$GH_USER" --password-stdin'
+                container('aws-cli') {
+                    unstash 'image-data'
+                    sh './scripts/tag-and-push-image.sh learner-api staging'
                 }
-
-                script {
-                    loadResult = sh(
-                        returnStdout: true,
-                        script: 'gunzip -c learner-api-*.tar.gz | docker load'
-                    ).trim().tokenize('\n')[0]
-                    echo loadResult
-                    imageName = loadResult[14..loadResult.size() - 1]
-                    echo imageName
-                    taggedImageName = imageName[0..imageName.lastIndexOf(':')] + 'staging'
-                    echo taggedImageName
-                }
-
-                sh "docker rmi ${taggedImageName} || true"
-                sh "docker tag ${imageName} ${taggedImageName}"
-                sh "docker push ${taggedImageName}"
-            }
+           }
         }
 
         stage('deploy to staging') {
@@ -103,20 +112,16 @@ pipeline {
                 triggeredBy 'UserIdCause'
             }
 
-            agent {
-                docker {
-                    image 'kevinswiber/curl-jq'
-                }
-            }
-
             steps {
-                withCredentials([string(credentialsId: 'postman-api-key', variable: 'POSTMAN_API_KEY')]) {
-                    withEnv(["GIT_REF_NAME=${BRANCH_NAME}", 'TEST_TYPE=testsuite', 'GROUP=smoke']) {
-                        sh './scripts/fetch-postman-assets.sh'
+                container('node-curl-jq') {
+                    withCredentials([string(credentialsId: 'postman-api-key', variable: 'POSTMAN_API_KEY')]) {
+                        withEnv(["GIT_REF_NAME=${BRANCH_NAME}", 'TEST_TYPE=testsuite', 'GROUP=smoke']) {
+                            sh './scripts/fetch-postman-assets.sh'
+                        }
                     }
-                }
 
-                stash name: 'postman-assets', includes: 'postman_*.json'
+                    stash name: 'postman-assets', includes: 'postman_*.json'
+                }
             }
         }
 
@@ -125,20 +130,15 @@ pipeline {
                 triggeredBy 'UserIdCause'
             }
 
-            agent {
-                docker {
-                    image 'postman/newman'
-                    args '--entrypoint=""'
-                }
-            }
-
             steps {
-                unstash 'postman-assets'
-                sh '''newman run \\
+                container('newman') {
+                    unstash 'postman-assets'
+                    sh '''newman run \\
                         --reporters cli,junit \\
                         --env-var url=https://learner-api-staging.zoinks.dev \\
                         -e ./postman_environment.json \
                         ./postman_collection.json'''
+                }
             }
 
             post {
