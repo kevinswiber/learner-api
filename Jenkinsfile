@@ -131,7 +131,10 @@ spec:
 
             steps {
                 container('newman') {
-                    unstash 'postman-assets'
+                    dir("${JENKINS_AGENT_WORKDIR}") {
+                        unstash 'postman-assets'
+                    }
+
                     sh '''newman run \\
                         --reporters cli,junit \\
                         --env-var url=https://learner-api-staging.zoinks.dev \\
