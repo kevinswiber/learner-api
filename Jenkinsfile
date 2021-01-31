@@ -35,7 +35,7 @@ spec:
     }
 
     options {
-        copyArtifactPermission('learner-api/deploy-staging')
+        copyArtifactPermission('../deploy-staging')
         preserveStashes()
     }
 
