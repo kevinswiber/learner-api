@@ -113,7 +113,7 @@ spec:
 
             steps {
                 container('node-curl-jq') {
-                    withCredentials([string(credentialsId: 'postman-api-key', variable: 'POSTMAN_API_KEY')]) {
+                    withCredentials([string(credentialsId: 'learner-api-postman-api-key', variable: 'POSTMAN_API_KEY')]) {
                         withEnv(["GIT_REF_NAME=${BRANCH_NAME}", 'TEST_TYPE=testsuite', 'GROUP=smoke']) {
                             sh './scripts/fetch-postman-assets.sh'
                         }
