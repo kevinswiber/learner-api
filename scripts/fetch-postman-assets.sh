@@ -23,7 +23,7 @@ if [[ -z "$GIT_REF_TYPE" ]]; then
     GIT_REF_TYPE=branch
 fi
 
-job_label="job:${JOB_NAME%/*}" # take only the first part of the job name
+job_label="id:${JOB_NAME%/*}" # take only the first part of the job name
 
 api_id=$(curl -s -H "X-API-Key: $POSTMAN_API_KEY" \
     "https://api.getpostman.com/apis" | \
