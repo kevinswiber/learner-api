@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const { execSync, spawn } = require('child_process');
-const app = require('./app')
+const app = require('../app')
 
 const server = app.listen(0, () => {
   const port = server.address().port;
@@ -16,7 +16,7 @@ const server = app.listen(0, () => {
     JOB_NAME: `galaxy-pipelines/learner-api/${gitRefName}`
   });
 
-  const fetch = spawn('./ci/fetch-postman-assets.sh', { env: env, stdio: 'inherit' });
+  const fetch = spawn(`${__dirname}/fetch-postman-assets.sh`, { env: env, stdio: 'inherit' });
 
   const fetchSignalHandler = (signal) => {
     fetch.kill(signal);
