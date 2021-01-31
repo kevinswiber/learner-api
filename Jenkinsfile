@@ -32,7 +32,7 @@ spec:
         RESTList(
             name: 'project',
             description: 'galaxy-pipelines/learner-api/',
-            restEndpoint: "${JENKINS_URL}/job/galaxy-pipelines/job/learner-api/api/json",
+            restEndpoint: 'https://jenkins-galaxy.zoinks.dev/job/galaxy-pipelines/job/learner-api/api/json',
             credentialId: 'jenkins-api-key',
             mimeType: 'APPLICATION_JSON',
             valueExpression: '$.jobs..name',
@@ -93,7 +93,7 @@ spec:
                     unstash 'image-data'
                     sh './scripts/tag-and-push-image.sh learner-api staging'
                 }
-           }
+            }
         }
 
         stage('deploy to staging') {
