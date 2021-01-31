@@ -68,7 +68,7 @@ spec:
 
             steps {
                 script {
-                    jobName = "learner-api/${params.project}"
+                    jobName = "../${params.project}"
                     jobNumber = buildParameter('build')
                     echo "${jobNumber}"
                     echo "${params.build}"
