@@ -32,8 +32,8 @@ spec:
         RESTList(
             name: 'project',
             /* groovylint-disable-next-line GStringExpressionWithinString */
-            description: '/galaxy-pipelines/learner-api/${project}',
-            restEndpoint: 'http://localhost:8080/job/galaxy-pipelines/job/learner-api/api/json',
+            description: '/learner-api/${project}',
+            restEndpoint: 'http://localhost:8080/job/learner-api/api/json',
             credentialId: 'jenkins-api-key',
             mimeType: 'APPLICATION_JSON',
             valueExpression: '$.jobs..name',
@@ -70,7 +70,7 @@ spec:
 
             steps {
                 copyArtifacts(
-                    projectName: "/galaxy-pipelines/learner-api/${params.project}",
+                    projectName: "/learner-api/${params.project}",
                     selector: buildParameter('build')
                 )
 
