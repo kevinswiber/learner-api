@@ -13,7 +13,7 @@ const server = app.listen(0, () => {
   const env = Object.assign({}, process.env, {
     GIT_REF_TYPE: 'branch',
     GIT_REF_NAME: gitRefName,
-    JOB_NAME: `galaxy-pipelines/learner-api/${gitRefName}`
+    JOB_NAME: `learner-api/${gitRefName}`
   });
 
   const fetch = spawn(`${__dirname}/fetch-postman-assets.sh`, { env: env, stdio: 'inherit' });
