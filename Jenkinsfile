@@ -70,6 +70,7 @@ spec:
             post {
                 always {
                     junit 'newman/*.xml'
+                    archiveArtifacts 'newman/*.json'
                 }
             }
         }
