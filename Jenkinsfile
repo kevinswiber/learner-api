@@ -69,7 +69,7 @@ spec:
 
             post {
                 always {
-                    junit keepLongStdio: true, testResults: 'newman/*.xml'
+                    junit 'newman/*.xml'
                 }
             }
         }
