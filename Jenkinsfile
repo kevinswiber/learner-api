@@ -94,7 +94,7 @@ spec:
 
     post {
         success {
-            slackSend(channel: '#ci', blocks: [
+            slackSend(channel: '#ci', message: 'Successful build!', blocks: [
                 [
                     'type': 'section',
                     'text': [
@@ -111,7 +111,7 @@ spec:
             ])
         }
         failure {
-            slackSend(channel: '#ci', blocks: [
+            slackSend(channel: '#ci', message: 'Build failure!', blocks: [
                 [
                     'type': 'section',
                     'text': [
