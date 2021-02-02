@@ -116,7 +116,7 @@ spec:
                     }
 
                     sh '''newman run \\
-                        --reporters cli,junit \\
+                        --reporters cli,junit,json \\
                         --env-var url=https://learner-api-staging.zoinks.dev \\
                         -e ./postman_environment.json \
                         ./postman_collection.json'''
@@ -126,6 +126,7 @@ spec:
             post {
                 always {
                     junit 'newman/*.xml'
+                    archiveArtifacts 'newman/*.json'
                 }
             }
         }
