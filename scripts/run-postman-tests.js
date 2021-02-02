@@ -34,7 +34,7 @@ const server = app.listen(0, () => {
     let args = [
       'run',
       '-e', './postman_environment.json',
-      '--reporters', 'cli,junit'];
+      '--reporters', 'cli,junitfull'];
 
     if (process.env.TEST_TYPE === 'contracttest') {
       args = args.concat(['--env-var', `env-apiKey=${process.env.POSTMAN_API_KEY}`,

@@ -23,5 +23,8 @@
     "express",
     "api"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "newman-reporter-junitfull": "^1.1.1"
+  }
 }
