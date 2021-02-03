@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: learner-api-staging
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: learner-api-staging
+  template:
+    metadata:
+      labels:
+        app: learner-api-staging
+    spec:
+      containers:
+        - name: learner-api-staging
+          image: 780401591112.dkr.ecr.us-east-1.amazonaws.com/learner-api:staging
+          imagePullPolicy: Always

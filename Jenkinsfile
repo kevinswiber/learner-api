@@ -8,6 +8,7 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
+  serviceAccountName: jenkins-kubectl
   containers:
     - name: node-curl-jq
       image: kevinswiber/node-curl-jq
@@ -21,6 +22,11 @@ spec:
       tty: true
     - name: newman
       image: postman/newman
+      command:
+        - cat
+      tty: true
+    - name: kubectl
+      image: bitnami/kubectl
       command:
         - cat
       tty: true
@@ -89,6 +95,9 @@ spec:
 
             steps {
                 echo 'deployed to staging'
+                container('kubectl') {
+                    sh 'kubectl apply -n default -f ./'
+                }
             }
         }
 
@@ -117,7 +126,7 @@ spec:
 
                     sh '''newman run \\
                         --reporters cli,junit,json \\
-                        --env-var url=https://learner-api-staging.zoinks.dev \\
+                        --env-var url=http://learner-api-staging.default \\
                         -e ./postman_environment.json \
                         ./postman_collection.json'''
                 }
