@@ -31,7 +31,7 @@ spec:
         - cat
       tty: true
       securityContext:
-        runAsUser: 1001
+        runAsUser: 1000
 '''
         }
     }
