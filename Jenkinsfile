@@ -128,7 +128,6 @@ spec:
 
                     sh '''newman run \\
                         --reporters cli,junit,json \\
-                        --env-var url=http://learner-api-staging.default \\
                         -e ./postman_environment.json \
                         ./postman_collection.json'''
                 }
