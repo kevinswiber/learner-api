@@ -2,10 +2,23 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: jenkins-kubectl
+  namespace: default
 rules:
-  - apiGroups: [""]
+  - apiGroups:
+      - apps/v1
     resources:
       - deployments
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
       - configmaps
       - services
       - secrets
