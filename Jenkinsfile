@@ -94,10 +94,10 @@ spec:
             }
 
             steps {
-                echo 'deployed to staging'
                 container('kubectl') {
-                    sh 'kubectl apply -n default -f ./'
+                    sh 'kubectl apply -n default -f ./deploy'
                 }
+                echo 'deployed to staging'
             }
         }
 
