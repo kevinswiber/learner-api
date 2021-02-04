@@ -3,9 +3,9 @@ kind: Service
 metadata:
   name: learner-api-staging
   namespace: default
-annotations:
-  service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
-  service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:780401591112:certificate/86d50e0f-9cbc-4a54-a5ba-20de85c0760f
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:780401591112:certificate/86d50e0f-9cbc-4a54-a5ba-20de85c0760f
 spec:
   selector:
     app: learner-api-staging
