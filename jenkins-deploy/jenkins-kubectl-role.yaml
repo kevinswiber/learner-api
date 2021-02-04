@@ -5,7 +5,7 @@ metadata:
   namespace: default
 rules:
   - apiGroups:
-      - apps/v1
+      - apps
     resources:
       - deployments
     verbs:
@@ -19,6 +19,7 @@ rules:
   - apiGroups:
       - ""
     resources:
+      - pods
       - configmaps
       - services
       - secrets
