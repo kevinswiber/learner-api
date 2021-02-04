@@ -95,7 +95,7 @@ spec:
 
             steps {
                 container('kubectl') {
-                    sh "kubectl apply -n default -f ${JENKINS_AGENT_WORKDIR}/deploy"
+                    sh "kubectl apply -n default -f ${WORKSPACE}/deploy"
                 }
                 echo 'deployed to staging'
             }
