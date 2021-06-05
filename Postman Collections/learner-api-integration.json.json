@@ -1,0 +1,553 @@
+{
+  "info": {
+    "_postman_id": "5fcf2dac-164c-4891-b738-126babc795ad",
+    "name": "Learner API // group:integration",
+    "description": "[![Build Status](https://jenkins.zoinks.dev/buildStatus/icon?job=postman%2Flearner-api%2Fmain&style=plastic)](https://jenkins.zoinks.dev/job/postman/job/learner-api/job/main/)\n\nTry out sample endpoints using an API hosted on Glitch. Open each request in the collection and click __Send__ to see it run.\n\n__To view the code for the API [visit the project on Glitch](https://glitch.com/edit/#!/postman-api-learner).__\n\n# Remix your own version of the API\n\nYou can extend the API and update your Postman collection to call your own version of the endpoints.\n\nUse the button in the top left [in Glitch](https://glitch.com/edit/#!/postman-api-learner) to remix the project and edit the code.\n\n<img alt=\"remix project\" width=\"250px\" src=\"https://user-images.githubusercontent.com/6666370/73610601-1de13000-45d1-11ea-9185-45050710b8e1.png\"/>\n\nGlitch will automatically give your remix a new name and URL - click __Show__ &gt; __In a New Window__ to see it in your browser address bar.\n\n<img alt=\"open glitch\" src=\"https://user-images.githubusercontent.com/6666370/73610745-ab714f80-45d2-11ea-9ecb-31e805dcafd8.png\" width=\"450px\"/>\n\nIn Postman, edit the `url` collection variable to make the requests point at your remix of the API.\n\n<img alt=\"edit collection\" src=\"https://user-images.githubusercontent.com/6666370/73610639-68fb4300-45d1-11ea-85fd-2ed84262d759.png\" width=\"250px\"/><br/>\n\n<img alt=\"edit variable\" src=\"https://user-images.githubusercontent.com/6666370/73610640-68fb4300-45d1-11ea-9fb2-031a212a4ced.png\" width=\"600px\"/>\n\nEdit the requests in the collection to reflect the changes you make on Glitch. \n\n_Remember to sign into / up for Glitch to save your project, and save your edited collection requests in Postman._",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get data",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "2429f121-6ffd-474f-92e9-19db5734a650",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response time is less than 100ms\", function () {",
+              "  pm.expect(pm.response.responseTime).to.be.below(100);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "d0bac74e-ab5d-48fc-89e1-96a6027d5600",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{url}}/info?foo=bar",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "info"
+          ],
+          "query": [
+            {
+              "key": "foo",
+              "value": "bar",
+              "type": "text"
+            }
+          ]
+        },
+        "description": "Get data from the API at the /info endpoint"
+      },
+      "response": [
+        {
+          "id": "5e93c1ac-c9b7-4104-b14c-879d731ac814",
+          "name": "Get data",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": "{{url}}/info"
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "Text",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            }
+          ],
+          "cookie": [],
+          "responseTime": null,
+          "body": "{\n    \"message\": \"You made a GET request!\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Post data",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "bff0573e-b206-496f-be7d-a006cb1670ef",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('Response body contains a name property', () => {",
+              "  const response = pm.response.json();",
+              "  pm.expect(response.data.name).to.eql(pm.environment.get('name'));",
+              "});",
+              "",
+              "pm.test('Response body contains a location property', () => {",
+              "  const response = pm.response.json();",
+              "  pm.expect(response.data.location).to.eql(pm.environment.get('location'));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "5d770a79-6a1e-4b62-8c83-c1161a5f0dbf",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "name": "Content-Type",
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\t\"name\": \"{{name}}\",\n  \"location\": \"{{location}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{url}}/info",
+        "description": "Post data to the API at the /info endpoint, passing the json to add as body data"
+      },
+      "response": [
+        {
+          "id": "6e743af9-16c9-4d0c-bce9-15666dc96a78",
+          "name": "Post data",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "name": "Content-Type",
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"name\": \"sue\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{url}}/info"
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "Text",
+          "header": [
+            {
+              "key": "Date",
+              "value": "Thu, 11 Jun 2020 15:35:55 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "84"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "x-powered-by",
+              "value": "Express"
+            },
+            {
+              "key": "etag",
+              "value": "W/\"54-wg8QE3Sxp7+lJ/McIfLcj0dTLkw\""
+            }
+          ],
+          "cookie": [],
+          "responseTime": null,
+          "body": "{\n    \"message\": \"You made a POST request with the following data!\",\n    \"data\": {\n        \"name\": \"sue\"\n    }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Put data",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "5df24c2e-c1ac-48e5-87e7-709e9fc470e8",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "b4842a02-df32-41e6-97a7-19e648c345b9",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "name": "Content-Type",
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\t\"name\": \"sue\"\n}",
+          "options": {
+            "raw": {}
+          }
+        },
+        "url": {
+          "raw": "{{url}}/info?id={{id}}",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "info"
+          ],
+          "query": [
+            {
+              "key": "id",
+              "value": "{{id}}"
+            }
+          ]
+        },
+        "description": "Put data at the /info endpoint by passing a query parameter representing the id and body json with the data to update with"
+      },
+      "response": [
+        {
+          "id": "b17cef15-dce6-42fb-beab-15f9fc82e175",
+          "name": "Put data",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [
+              {
+                "name": "Content-Type",
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"name\": \"sue\"\n}"
+            },
+            "url": {
+              "raw": "{{url}}/info?id={{id}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "info"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{id}}"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "Text",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8",
+              "enabled": true
+            }
+          ],
+          "cookie": [],
+          "responseTime": null,
+          "body": "{\n    \"message\": \"You made a PUT request to update id=1 with the following data!\",\n    \"data\": {\n        \"name\": \"sue\"\n    }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Patch data",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "5df24c2e-c1ac-48e5-87e7-709e9fc470e8",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "6bc95893-7227-445a-8710-e59813c645dc",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "name": "Content-Type",
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{url}}/info?id={{id}}",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "info"
+          ],
+          "query": [
+            {
+              "key": "id",
+              "value": "{{id}}"
+            }
+          ]
+        },
+        "description": "Patch data at the /info endpoint by passing a query parameter representing the id and body json with the data to update with"
+      },
+      "response": [
+        {
+          "id": "6c219e47-b710-4e7f-8820-b3daee94a692",
+          "name": "Patch data",
+          "originalRequest": {
+            "method": "PATCH",
+            "header": [
+              {
+                "name": "Content-Type",
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"name\": \"sue\"\n}",
+              "options": {
+                "raw": {}
+              }
+            },
+            "url": {
+              "raw": "{{url}}/info?id={{id}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "info"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{id}}"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "Text",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8",
+              "enabled": true
+            }
+          ],
+          "cookie": [],
+          "responseTime": null,
+          "body": "{\n    \"message\": \"You made a PATCH request to update id=1 with the following data!\",\n    \"data\": {\n        \"name\": \"sue\"\n    }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Delete data",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "305f0caf-e9ee-4cee-b2f6-7ac105f97cba",
+            "exec": [
+              "pm.test(\"Status code is 204\", function () {",
+              "  pm.response.to.have.status(204);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "_postman_id": "23763bab-05e9-40a2-98ed-40b2eb6d4e47",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{url}}/info?id={{id}}",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "info"
+          ],
+          "query": [
+            {
+              "key": "id",
+              "value": "{{id}}"
+            }
+          ]
+        },
+        "description": "Delete data from the API at the /info endpoint, specifying the data by passing its id as a query parameter"
+      },
+      "response": [
+        {
+          "id": "77d51d51-5f0d-4b10-b3bd-300430272194",
+          "name": "Delete data",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [
+              {
+                "name": "Content-Type",
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/info?id={{id}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "info"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{id}}"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "Text",
+          "header": [
+            {
+              "key": "Date",
+              "value": "Thu, 11 Jun 2020 15:36:07 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "55"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "x-powered-by",
+              "value": "Express"
+            },
+            {
+              "key": "etag",
+              "value": "W/\"37-Avb8HdSXYFG7v9MAHgR6oLX97hQ\""
+            }
+          ],
+          "cookie": [],
+          "responseTime": null,
+          "body": "{\n    \"message\": \"You made a DELETE request to delete id=1!\"\n}"
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "id": "86c6d260-4487-4d64-bf5c-a4a9a90d8c1b",
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "id": "bbe64127-776c-4f4a-9e65-4a344b5ce685",
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "id": "382b0d94-15df-4d7c-a674-2126a6232a2c",
+      "key": "url",
+      "value": "postman-api-learner.glitch.me",
+      "type": "string"
+    },
+    {
+      "id": "56e787ef-c5de-4032-b63e-6d3389fe0b35",
+      "key": "id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "id": "59ec0bf3-9916-4285-bb27-e38cc2c354aa",
+      "key": "name",
+      "value": "sue",
+      "type": "string"
+    }
+  ]
+}
