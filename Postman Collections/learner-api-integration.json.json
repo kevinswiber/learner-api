@@ -20,13 +20,14 @@
               "",
               "pm.test(\"Response time is less than 100ms\", function () {",
               "  pm.expect(pm.response.responseTime).to.be.below(100);",
+              "  throw new Error('whoops');",
               "});"
             ],
             "type": "text/javascript"
           }
         }
       ],
-      "_postman_id": "d0bac74e-ab5d-48fc-89e1-96a6027d5600",
+      "id": "d0bac74e-ab5d-48fc-89e1-96a6027d5600",
       "protocolProfileBehavior": {
         "disableBodyPruning": true
       },
@@ -44,8 +45,7 @@
           "query": [
             {
               "key": "foo",
-              "value": "bar",
-              "type": "text"
+              "value": "bar"
             }
           ]
         },
@@ -101,7 +101,7 @@
           }
         }
       ],
-      "_postman_id": "5d770a79-6a1e-4b62-8c83-c1161a5f0dbf",
+      "id": "5d770a79-6a1e-4b62-8c83-c1161a5f0dbf",
       "protocolProfileBehavior": {
         "disableBodyPruning": true
       },
@@ -201,7 +201,7 @@
           }
         }
       ],
-      "_postman_id": "b4842a02-df32-41e6-97a7-19e648c345b9",
+      "id": "b4842a02-df32-41e6-97a7-19e648c345b9",
       "protocolProfileBehavior": {
         "disableBodyPruning": true
       },
@@ -216,10 +216,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n\t\"name\": \"sue\"\n}",
-          "options": {
-            "raw": {}
-          }
+          "raw": "{\n\t\"name\": \"sue\"\n}"
         },
         "url": {
           "raw": "{{url}}/info?id={{id}}",
@@ -303,7 +300,7 @@
           }
         }
       ],
-      "_postman_id": "6bc95893-7227-445a-8710-e59813c645dc",
+      "id": "6bc95893-7227-445a-8710-e59813c645dc",
       "protocolProfileBehavior": {
         "disableBodyPruning": true
       },
@@ -348,10 +345,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n\t\"name\": \"sue\"\n}",
-              "options": {
-                "raw": {}
-              }
+              "raw": "{\n\t\"name\": \"sue\"\n}"
             },
             "url": {
               "raw": "{{url}}/info?id={{id}}",
@@ -401,7 +395,7 @@
           }
         }
       ],
-      "_postman_id": "23763bab-05e9-40a2-98ed-40b2eb6d4e47",
+      "id": "23763bab-05e9-40a2-98ed-40b2eb6d4e47",
       "protocolProfileBehavior": {
         "disableBodyPruning": true
       },
