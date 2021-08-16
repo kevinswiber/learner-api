@@ -35,7 +35,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{url}}/info?foo=bar",
+          "raw": "{{url}}/info?foo=bar&foo2=bar2",
           "host": [
             "{{url}}"
           ],
@@ -46,6 +46,11 @@
             {
               "key": "foo",
               "value": "bar"
+            },
+            {
+              "key": "foo2",
+              "value": "bar2",
+              "type": "text"
             }
           ]
         },
