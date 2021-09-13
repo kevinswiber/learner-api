@@ -34,7 +34,22 @@
       "request": {
         "method": "GET",
         "header": [],
-        "url": "{{url}}/info",
+        "url": {
+          "raw": "{{url}}/info?foo=bar",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "info"
+          ],
+          "query": [
+            {
+              "key": "foo",
+              "value": "bar",
+              "type": "text"
+            }
+          ]
+        },
         "description": "Get data from the API at the /info endpoint"
       },
       "response": [
