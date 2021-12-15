@@ -17,6 +17,11 @@ var routes = function (app) {
     console.log(process.env.PROJECT_REMIX_CHAIN);
   });
 
+
+  app.get("/tada", (req, res) => {
+    return res.send({"tada": "salsa-time"});
+  });
+
   //get request
   app.get("/info", function (req, res) {
     let responseData = new Object();
